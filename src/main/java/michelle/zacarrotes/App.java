@@ -8,16 +8,15 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-/**
- * JavaFX App
- */
 public class App extends Application {
 
     private static Scene scene;
 
     @Override
     public void start(Stage stage) throws IOException {
-        scene = new Scene(loadFXML("primary"), 640, 480);
+        Parent root = FXMLLoader.load(App.class.getResource("/vistas/productos/productos.fxml"));
+        scene = new Scene(root, 1150, 720);
+        stage.setTitle("Zacarrotes - Productos");
         stage.setScene(scene);
         stage.show();
     }

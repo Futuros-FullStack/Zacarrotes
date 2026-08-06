@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.SVGPath?>
+
+<!--
+    Vista de Productos - Zacarrotes
+    Maqueta 100% declarativa (FXML + estilos/productos.css). Sin controlador ni logica.
+
+    Convencion de fx:id:
+      txt* TextField | cbo* ComboBox | dtp* DatePicker | btn* Button | tgb* ToggleButton
+      lbl* Label | img* ImageView | pnl*/box* contenedores | scr* ScrollPane
+    Las filas del catalogo llevan sufijo 1..6 (son datos de ejemplo).
+-->
+
+<BorderPane fx:id="pnlRaiz" prefHeight="720.0" prefWidth="1150.0" stylesheets="@../../estilos/general.css, @../../estilos/productos.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
+
+    <!-- ================= BARRA SUPERIOR (componente comun) ================= -->
+    <top>
+        <fx:include fx:id="navbar" source="../comunes/navbar.fxml" />
+    </top>
+
+    <!-- ================= CONTENIDO ================= -->
+    <center>
+        <HBox fx:id="pnlContenido" spacing="0.0">
+
+            <!-- Panel izquierdo: formulario -->
+            <VBox fx:id="pnlFormulario" minWidth="310.0" prefWidth="310.0" spacing="14.0" styleClass="form-card">
+                <padding>
+                    <Insets bottom="18.0" left="18.0" right="18.0" top="18.0" />
+                </padding>
+
+                <Label fx:id="lblTituloFormulario" styleClass="card-title" text="Datos del producto" />
+
+                <!--
+                    Imagen del producto.
+                    imgPreview arranca vacio: mientras no tenga Image se ve el
+                    icono de fondo. El boton debe abrir un FileChooser y poner
+                    la imagen elegida en imgPreview.
+                -->
+                <HBox fx:id="boxImagen" alignment="CENTER_LEFT" spacing="12.0">
+                    <StackPane fx:id="pnlImagen" styleClass="img-picker">
+                        <SVGPath content="M2 3.5h12v9h-12z M2 10.5l3.5-3 3 2.5 2.5-2.5 3 3 M5.6 6.3a0.9 0.9 0 1 0 0.01 0 Z" styleClass="icon, icon-placeholder" />
+                        <ImageView fx:id="imgPreview" fitHeight="70.0" fitWidth="70.0" pickOnBounds="true" preserveRatio="true" />
+                    </StackPane>
+
+                    <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                        <Button fx:id="btnElegirImagen" contentDisplay="LEFT" graphicTextGap="8.0" maxWidth="Infinity" styleClass="btn, btn-ghost" text="Elegir imagen">
+                            <graphic>
+                                <SVGPath content="M8 12.5V3.5 M4.6 6.9 8 3.5l3.4 3.4 M2.5 13.5h11" styleClass="icon" />
+                            </graphic>
+                        </Button>
+                        <Label fx:id="lblImagenHint" styleClass="img-hint" text="PNG o JPG, cuadrada" wrapText="true" />
+                    </VBox>
+                </HBox>
+
+                <VBox fx:id="boxNombre" spacing="6.0">
+                    <Label fx:id="lblNombre" styleClass="field-label" text="Nombre" />
+                    <TextField fx:id="txtNombre" promptText="Leche Entera Lala 1 L" />
+                </VBox>
+
+                <VBox fx:id="boxMarca" spacing="6.0">
+                    <Label fx:id="lblMarca" styleClass="field-label" text="Marca" />
+                    <TextField fx:id="txtMarca" promptText="Lala" />
+                </VBox>
+
+                <HBox fx:id="boxPrecioCantidad" spacing="12.0">
+                    <VBox fx:id="boxPrecio" spacing="6.0" HBox.hgrow="ALWAYS">
+                        <Label fx:id="lblPrecio" styleClass="field-label" text="Precio" />
+                        <TextField fx:id="txtPrecio" promptText="28.50" />
+                    </VBox>
+                    <VBox fx:id="boxCantidad" spacing="6.0" HBox.hgrow="ALWAYS">
+                        <Label fx:id="lblCantidad" styleClass="field-label" text="Cantidad" />
+                        <TextField fx:id="txtCantidad" promptText="18" />
+                    </VBox>
+                </HBox>
+
+                <VBox fx:id="boxCaducidad" spacing="6.0">
+                    <Label fx:id="lblCaducidad" styleClass="field-label" text="Caducidad" />
+                    <DatePicker fx:id="dtpCaducidad" maxWidth="Infinity" promptText="30 / 11 / 2026" />
+                </VBox>
+
+                <VBox fx:id="boxProveedor" spacing="6.0">
+                    <Label fx:id="lblProveedor" styleClass="field-label" text="Proveedor" />
+                    <ComboBox fx:id="cboProveedor" maxWidth="Infinity" promptText="Grupo Lala">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="Grupo Lala" />
+                                <String fx:value="Coca-Cola FEMSA" />
+                                <String fx:value="Grupo Bimbo" />
+                                <String fx:value="Barcel" />
+                                <String fx:value="Sabritas" />
+                                <String fx:value="Marinela" />
+                                <String fx:value="Colgate-Palmolive" />
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
+                </VBox>
+
+                <Region prefHeight="6.0" />
+
+                <!-- Acciones -->
+                <Button fx:id="btnGuardar" contentDisplay="LEFT" graphicTextGap="8.0" maxWidth="Infinity" styleClass="btn, btn-primary" text="Guardar">
+                    <graphic>
+                        <SVGPath content="M2.5 2.5h8l3 3v8h-11z M5 2.5v4h5v-4 M5 13.5v-4h6v4" styleClass="icon, icon-white" />
+                    </graphic>
+                </Button>
+
+                <HBox fx:id="boxAcciones" spacing="10.0" />
+
+                <Button fx:id="btnEliminar" contentDisplay="LEFT" graphicTextGap="8.0" maxWidth="Infinity" styleClass="btn, btn-danger" text="Eliminar seleccionado">
+                    <graphic>
+                        <SVGPath content="M2.5 4h11 M6 4V2.2h4V4 M4 4l0.8 10h6.4L12 4 M6.6 6.5v5 M9.4 6.5v5" styleClass="icon, icon-danger" />
+                    </graphic>
+                </Button>
+            </VBox>
+
+            <!-- Panel derecho: catalogo -->
+            <VBox fx:id="pnlCatalogo" spacing="12.0" styleClass="catalog-card" HBox.hgrow="ALWAYS">
+                <padding>
+                    <Insets bottom="18.0" left="18.0" right="18.0" top="18.0" />
+                </padding>
+
+                <HBox fx:id="boxCatalogo" alignment="CENTER_LEFT" spacing="10.0">
+                    <Label fx:id="lblTituloCatalogo" styleClass="card-title" text="Catálogo" />
+                    <Label fx:id="lblTotalProductos" styleClass="badge-count" text="13" />
+                </HBox>
+
+                <VBox fx:id="pnlTabla" styleClass="table-card" VBox.vgrow="ALWAYS">
+
+                    <!--
+                        Catalogo de productos.
+                        Las columnas ya tienen fx:id: el back solo debe asignarles
+                        el cellValueFactory y llenar tblProductos.setItems(...).
+                    -->
+                    <TableView fx:id="tblProductos" VBox.vgrow="ALWAYS">
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                        </columnResizePolicy>
+                        <columns>
+                            <TableColumn fx:id="colIcono" maxWidth="56.0" minWidth="56.0" prefWidth="56.0"
+                                         resizable="false" sortable="false" text="" />
+                            <TableColumn fx:id="colProducto" minWidth="200.0" prefWidth="250.0" text="PRODUCTO" />
+                            <TableColumn fx:id="colMarca" maxWidth="150.0" minWidth="110.0" prefWidth="120.0" text="MARCA" />
+                            <TableColumn fx:id="colPrecio" maxWidth="90.0" minWidth="75.0" prefWidth="80.0"
+                                         style="-fx-alignment: CENTER_RIGHT;" text="PRECIO" />
+                            <TableColumn fx:id="colCantidad" maxWidth="70.0" minWidth="55.0" prefWidth="60.0"
+                                         style="-fx-alignment: CENTER_RIGHT;" text="CANT." />
+                            <TableColumn fx:id="colCaducidad" maxWidth="115.0" minWidth="100.0" prefWidth="105.0" text="CADUCIDAD" />
+                            <TableColumn fx:id="colProveedor" maxWidth="180.0" minWidth="135.0" prefWidth="145.0" text="PROVEEDOR" />
+                        </columns>
+                        <placeholder>
+                            <Label styleClass="tabla-vacia" text="Sin productos que mostrar" />
+                        </placeholder>
+                    </TableView>
+                </VBox>
+            </VBox>
+        </HBox>
+    </center>
+
+</BorderPane>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.SVGPath?>
+
+<!--
+    Barra de navegacion comun a todas las vistas.
+
+    Como usarla en tu vista:
+        <top>
+            <fx:include source="../comunes/navbar.fxml" />
+        </top>
+
+    El boton de la seccion activa se marca con selected="true". Aqui viene
+    marcado "Productos"; mueve ese atributo al boton
+    que corresponda, o quitalo y marcalo desde tu controlador usando
+    <fx:include fx:id="navbar"
+
+    Trae su propia hoja de estilos para que se vea igual aunque la incluyas
+    en una vista con otro CSS, y para poder abrirla sola en Scene Builder.
+-->
+
+<HBox fx:id="pnlBarraSuperior" alignment="CENTER_LEFT" prefWidth="1150.0" spacing="14.0"
+      styleClass="topbar" stylesheets="@../../estilos/general.css"
+      xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
+    <padding>
+        <Insets bottom="10.0" left="16.0" right="16.0" top="10.0" />
+    </padding>
+
+    <fx:define>
+        <ToggleGroup fx:id="navGroup" />
+    </fx:define>
+
+    <!-- Marca -->
+    <VBox fx:id="boxMarcaApp" spacing="0.0">
+        <Label fx:id="lblNombreApp" prefHeight="40.0" prefWidth="70.0" styleClass="brand-name" text="Zacarrotes" />
+    </VBox>
+
+    <Region HBox.hgrow="ALWAYS" />
+
+    <!-- Secciones -->
+    <HBox fx:id="boxNavegacion" alignment="CENTER" spacing="2.0" styleClass="nav-bar">
+        <ToggleButton fx:id="tgbVenta" contentDisplay="LEFT" graphicTextGap="7.0" styleClass="nav-item" text="Venta" toggleGroup="$navGroup">
+            <graphic>
+                <SVGPath content="M1.5 2.5h2l2 8h8 M4.5 4.5h11l-1.2 4.5h-8.6 M6.2 13.4a1 1 0 1 0 0.01 0 Z M12.2 13.4a1 1 0 1 0 0.01 0 Z" styleClass="icon" />
+            </graphic>
+        </ToggleButton>
+
+        <ToggleButton fx:id="tgbProductos" contentDisplay="LEFT" graphicTextGap="7.0" selected="true" styleClass="nav-item" text="Productos" toggleGroup="$navGroup">
+            <graphic>
+                <SVGPath content="M8 1.5 14.5 5v6L8 14.5 1.5 11V5z M1.5 5 8 8.5 14.5 5 M8 8.5v6" styleClass="icon, icon-light" />
+            </graphic>
+        </ToggleButton>
+
+        <ToggleButton fx:id="tgbClientes" contentDisplay="LEFT" graphicTextGap="7.0" styleClass="nav-item" text="Clientes" toggleGroup="$navGroup">
+            <graphic>
+                <SVGPath content="M6 7.5a2.4 2.4 0 1 0 0.01 0 Z M1.6 14c0-2.4 2-3.8 4.4-3.8s4.4 1.4 4.4 3.8 M11 4.6a2.2 2.2 0 0 1 0 5.4 M12.4 10.6c1.3 0.5 2 1.6 2 3.4" styleClass="icon" />
+            </graphic>
+        </ToggleButton>
+
+        <ToggleButton fx:id="tgbProveedores" contentDisplay="LEFT" graphicTextGap="7.0" styleClass="nav-item" text="Proveedores" toggleGroup="$navGroup">
+            <graphic>
+                <SVGPath content="M1.5 3.5h8v7.5h-8z M9.5 6.2h3l2 2.4v2.4h-5z M4.8 12.6a1.2 1.2 0 1 0 0.01 0 Z M11.6 12.6a1.2 1.2 0 1 0 0.01 0 Z" styleClass="icon" />
+            </graphic>
+        </ToggleButton>
+    </HBox>
+</HBox>

@@ -1,0 +1,73 @@
+/* =========================================================
+   Zacarrotes - Estilos exclusivos de la vista de Productos
+   Requiere general.css cargado antes (ver productos.fxml).
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   Selector de imagen del formulario.
+   El recuadro punteado se ve mientras imgPreview esta vacio;
+   al asignarle una Image, la foto lo tapa.
+   --------------------------------------------------------- */
+.img-picker {
+    -fx-background-color: -color-input;
+    -fx-background-radius: 10;
+    -fx-border-color: #39413a;
+    -fx-border-radius: 10;
+    -fx-border-style: segments(5, 4) line-cap round;
+    -fx-border-width: 1.4;
+    -fx-min-width: 76; -fx-min-height: 76;
+    -fx-max-width: 76; -fx-max-height: 76;
+    -fx-cursor: hand;
+}
+
+.img-picker:hover {
+    -fx-border-color: -color-green;
+}
+
+/* Icono de "sin imagen" detras del preview */
+.icon-placeholder {
+    -fx-stroke: #59635a;
+    -fx-scale-x: 1.9;
+    -fx-scale-y: 1.9;
+}
+
+.img-hint {
+    -fx-text-fill: #6d746d;
+    -fx-font-size: 10px;
+}
+
+/* ---------------------------------------------------------
+   Miniatura del producto (columna colIcono).
+   Se aplica al StackPane que envuelve al ImageView.
+
+   OJO: no se llama .thumb porque esa clase ya la usan las
+   barras de scroll de JavaFX y el tamano fijo se les pegaba.
+   --------------------------------------------------------- */
+.thumb-producto {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-min-width: 32; -fx-min-height: 32;
+    -fx-max-width: 32; -fx-max-height: 32;
+    -fx-border-color: #d8ddd8;
+    -fx-border-radius: 8;
+}
+
+/* ---------------------------------------------------------
+   Semaforo de caducidad (columna colCaducidad).
+   Se aplica a un Label puesto como graphic de la celda:
+       lbl.getStyleClass().addAll("pill", "pill-ok");
+
+   lima  = vigente
+   ambar = caduca pronto
+   rojo  = urgente
+   --------------------------------------------------------- */
+.pill {
+    -fx-background-radius: 6;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-padding: 3 8 3 8;
+}
+
+.pill-ok     { -fx-background-color: #24401a; -fx-text-fill: #9fe870; }
+.pill-warn   { -fx-background-color: #4a3a12; -fx-text-fill: #e8c15a; }
+.pill-danger { -fx-background-color: #451916; -fx-text-fill: #f0837c; }
