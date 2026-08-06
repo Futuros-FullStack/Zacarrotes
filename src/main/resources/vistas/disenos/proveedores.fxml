@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.SVGPath?>
+
+<!--
+    Vista de Proveedores - simulacion del diseno (diseños/proveedores.png).
+    Filas estaticas de ejemplo: el back las cambia por un TableView.
+-->
+
+<BorderPane fx:id="pnlRaiz" prefHeight="720.0" prefWidth="1150.0" stylesheets="@../../estilos/general.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
+
+    <top>
+        <fx:include fx:id="navbar" source="../comunes/navbar.fxml" />
+    </top>
+
+    <center>
+        <HBox fx:id="pnlContenido" spacing="0.0">
+
+            <!-- Formulario -->
+            <VBox fx:id="pnlFormulario" minWidth="310.0" prefWidth="310.0" spacing="14.0" styleClass="form-card">
+                <padding>
+                    <Insets bottom="18.0" left="18.0" right="18.0" top="18.0" />
+                </padding>
+
+                <Label fx:id="lblTituloFormulario" styleClass="card-title" text="Datos del proveedor" />
+
+                <VBox fx:id="boxNombre" spacing="6.0">
+                    <Label fx:id="lblNombre" styleClass="field-label" text="Nombre" />
+                    <TextField fx:id="txtNombre" promptText="Grupo Bimbo" />
+                </VBox>
+
+                <VBox fx:id="boxDireccion" spacing="6.0">
+                    <Label fx:id="lblDireccion" styleClass="field-label" text="Dirección" />
+                    <TextField fx:id="txtDireccion" promptText="Calle Pino Suárez 45, Centro" />
+                </VBox>
+
+                <VBox fx:id="boxTelefono" spacing="6.0">
+                    <Label fx:id="lblTelefono" styleClass="field-label" text="Teléfono" />
+                    <TextField fx:id="txtTelefono" promptText="2299113045" />
+                    <Label fx:id="lblTelefonoHint" styleClass="form-hint" text="10 dígitos, sin guiones ni espacios" />
+                </VBox>
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <Button fx:id="btnGuardar" contentDisplay="LEFT" graphicTextGap="8.0" maxWidth="Infinity" styleClass="btn, btn-primary" text="Guardar">
+                    <graphic>
+                        <SVGPath content="M2.5 2.5h8l3 3v8h-11z M5 2.5v4h5v-4 M5 13.5v-4h6v4" styleClass="icon, icon-white" />
+                    </graphic>
+                </Button>
+
+                <Button fx:id="btnEliminar" contentDisplay="LEFT" graphicTextGap="8.0" maxWidth="Infinity" styleClass="btn, btn-danger" text="Eliminar seleccionado">
+                    <graphic>
+                        <SVGPath content="M2.5 4h11 M6 4V2.2h4V4 M4 4l0.8 10h6.4L12 4 M6.6 6.5v5 M9.4 6.5v5" styleClass="icon, icon-danger" />
+                    </graphic>
+                </Button>
+            </VBox>
+
+            <!-- Listado -->
+            <VBox fx:id="pnlListado" spacing="12.0" styleClass="catalog-card" HBox.hgrow="ALWAYS">
+                <padding>
+                    <Insets bottom="18.0" left="18.0" right="18.0" top="18.0" />
+                </padding>
+
+                <HBox fx:id="boxTitulo" alignment="CENTER_LEFT" spacing="10.0">
+                    <Label fx:id="lblTitulo" styleClass="card-title" text="Proveedores registrados" />
+                    <Label fx:id="lblTotalProveedores" styleClass="badge-count" text="6" />
+                </HBox>
+
+                <VBox fx:id="pnlTabla" styleClass="table-card" VBox.vgrow="ALWAYS">
+
+                    <!-- proveedor(idproveedor, nombreproveedor, direccion, telefono) -->
+                    <HBox fx:id="boxEncabezados" alignment="CENTER_LEFT" spacing="12.0" styleClass="table-head">
+                        <Label fx:id="lblColId" minWidth="70.0" prefWidth="70.0" styleClass="th" text="IDPROVEEDOR" />
+                        <Label fx:id="lblColNombre" minWidth="200.0" prefWidth="200.0" styleClass="th" text="NOMBRE" />
+                        <Label fx:id="lblColDireccion" prefWidth="280.0" styleClass="th" text="DIRECCIÓN" HBox.hgrow="ALWAYS" />
+                        <Label fx:id="lblColTelefono" alignment="CENTER_RIGHT" minWidth="120.0" prefWidth="120.0" styleClass="th" text="TELÉFONO" />
+                    </HBox>
+
+                    <ScrollPane fx:id="scrProveedores" fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS">
+                        <VBox fx:id="boxFilas">
+
+                            <HBox fx:id="filaProveedor1" alignment="CENTER_LEFT" spacing="12.0" styleClass="row">
+                                <Label minWidth="70.0" prefWidth="70.0" styleClass="cell-id" text="1" />
+                                <Label minWidth="200.0" prefWidth="200.0" styleClass="cell-strong" text="Grupo Bimbo" />
+                                <Label prefWidth="280.0" styleClass="cell" text="Calle Pino Suárez 45, Centro" HBox.hgrow="ALWAYS" />
+                                <Label alignment="CENTER_RIGHT" minWidth="120.0" prefWidth="120.0" styleClass="cell-num" text="2299113045" />
+                            </HBox>
+
+                            <HBox fx:id="filaProveedor2" alignment="CENTER_LEFT" spacing="12.0" styleClass="row">
+                                <Label minWidth="70.0" prefWidth="70.0" styleClass="cell-id" text="2" />
+                                <Label minWidth="200.0" prefWidth="200.0" styleClass="cell-strong" text="Coca-Cola FEMSA" />
+                                <Label prefWidth="280.0" styleClass="cell" text="Blvd. Industrial 1200, Parque Norte" HBox.hgrow="ALWAYS" />
+                                <Label alignment="CENTER_RIGHT" minWidth="120.0" prefWidth="120.0" styleClass="cell-num" text="2288451290" />
+                            </HBox>
+
+                            <HBox fx:id="filaProveedor3" alignment="CENTER_LEFT" spacing="12.0" styleClass="row">
+                                <Label minWidth="70.0" prefWidth="70.0" styleClass="cell-id" text="3" />
+                                <Label minWidth="200.0" prefWidth="200.0" styleClass="cell-strong" text="Grupo Lala" />
+                                <Label prefWidth="280.0" styleClass="cell" text="Av. Lázaro Cárdenas 890, Reforma" HBox.hgrow="ALWAYS" />
+                                <Label alignment="CENTER_RIGHT" minWidth="120.0" prefWidth="120.0" styleClass="cell-num" text="2281567712" />
+                            </HBox>
+
+                            <HBox fx:id="filaProveedor4" alignment="CENTER_LEFT" spacing="12.0" styleClass="row">
+                                <Label minWidth="70.0" prefWidth="70.0" styleClass="cell-id" text="4" />
+                                <Label minWidth="200.0" prefWidth="200.0" styleClass="cell-strong" text="PepsiCo México" />
+                                <Label prefWidth="280.0" styleClass="cell" text="Carretera Federal km 8.5, Las Trancas" HBox.hgrow="ALWAYS" />
+                                <Label alignment="CENTER_RIGHT" minWidth="120.0" prefWidth="120.0" styleClass="cell-num" text="2288730114" />
+                            </HBox>
+
+                            <HBox fx:id="filaProveedor5" alignment="CENTER_LEFT" spacing="12.0" styleClass="row">
+                                <Label minWidth="70.0" prefWidth="70.0" styleClass="cell-id" text="5" />
+                                <Label minWidth="200.0" prefWidth="200.0" styleClass="cell-strong" text="Conservas La Costeña" />
+                                <Label prefWidth="280.0" styleClass="cell" text="Prol. Juárez 330, Bodega 4" HBox.hgrow="ALWAYS" />
+                                <Label alignment="CENTER_RIGHT" minWidth="120.0" prefWidth="120.0" styleClass="cell-num" text="2299042281" />
+                            </HBox>
+
+                            <HBox fx:id="filaProveedor6" alignment="CENTER_LEFT" spacing="12.0" styleClass="row">
+                                <Label minWidth="70.0" prefWidth="70.0" styleClass="cell-id" text="6" />
+                                <Label minWidth="200.0" prefWidth="200.0" styleClass="cell-strong" text="Abarrotera del Centro" />
+                                <Label prefWidth="280.0" styleClass="cell" text="Calle Zamora 12, Centro" HBox.hgrow="ALWAYS" />
+                                <Label alignment="CENTER_RIGHT" minWidth="120.0" prefWidth="120.0" styleClass="cell-num" text="2281334509" />
+                            </HBox>
+
+                        </VBox>
+                    </ScrollPane>
+                </VBox>
+            </VBox>
+        </HBox>
+    </center>
+
+    <bottom>
+        <HBox fx:id="pnlBarraEstado" alignment="CENTER_LEFT" spacing="8.0" styleClass="statusbar" />
+    </bottom>
+</BorderPane>

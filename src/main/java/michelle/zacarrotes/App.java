@@ -2,36 +2,60 @@ package michelle.zacarrotes;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.ToggleButton;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
 public class App extends Application {
 
+    public static final String VISTA_VENTA       = "/vistas/disenos/venta.fxml";
+    public static final String VISTA_PRODUCTOS   = "/vistas/productos/productos.fxml";
+    public static final String VISTA_CLIENTES    = "/vistas/disenos/clientes.fxml";
+    public static final String VISTA_PROVEEDORES = "/vistas/disenos/proveedores.fxml";
+
     private static Scene scene;
 
     @Override
     public void start(Stage stage) throws IOException {
-        Parent root = FXMLLoader.load(App.class.getResource("/vistas/productos/productos.fxml"));
+        Parent root = cargar(VISTA_PRODUCTOS);
+        marcarSeccion(root, "tgbProductos");
+
         scene = new Scene(root, 1150, 720);
-        stage.setTitle("Zacarrotes - Productos");
+        stage.setTitle("Zacarrotes");
         stage.setScene(scene);
         stage.show();
     }
 
-    static void setRoot(String fxml) throws IOException {
-        scene.setRoot(loadFXML(fxml));
+    public static void cambiarVista(String recursoFxml, String idBoton) {
+        try {
+            Parent root = cargar(recursoFxml);
+            marcarSeccion(root, idBoton);
+            scene.setRoot(root);
+        } catch (IOException e) {
+            System.err.println("No se pudo abrir " + recursoFxml + ": " + e.getMessage());
+        }
     }
 
-    private static Parent loadFXML(String fxml) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(fxml + ".fxml"));
-        return fxmlLoader.load();
+    private static Parent cargar(String recursoFxml) throws IOException {
+        java.net.URL url = App.class.getResource(recursoFxml);
+        if (url == null) {
+            throw new IOException("no esta en el classpath");
+        }
+        return FXMLLoader.load(url);
+    }
+
+    private static void marcarSeccion(Parent root, String idBoton) {
+        Node boton = root.lookup("#" + idBoton);
+        if (boton instanceof ToggleButton) {
+            ((ToggleButton) boton).setSelected(true);
+        }
     }
 
     public static void main(String[] args) {
         launch();
     }
-
 }

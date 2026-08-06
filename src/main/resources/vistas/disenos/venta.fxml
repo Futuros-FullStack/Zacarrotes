@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.SVGPath?>
+
+<!--
+    Vista de Venta - simulacion del diseno (diseños/ventas.png).
+
+    Rejilla de tarjetas de producto a la izquierda y ticket a la derecha.
+    Las tarjetas son estaticas: el back debe generarlas en un bucle a
+    partir del catalogo y hacer que al hacer clic se agreguen al ticket.
+-->
+
+<BorderPane fx:id="pnlRaiz" prefHeight="720.0" prefWidth="1150.0" stylesheets="@../../estilos/general.css, @../../estilos/venta.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
+
+    <top>
+        <fx:include fx:id="navbar" source="../comunes/navbar.fxml" />
+    </top>
+
+    <center>
+        <VBox fx:id="pnlContenido">
+
+            <HBox fx:id="boxCuerpo" VBox.vgrow="ALWAYS">
+
+                <!-- ============ Rejilla de productos ============ -->
+                <VBox fx:id="pnlCatalogo" spacing="12.0" HBox.hgrow="ALWAYS">
+                    <padding>
+                        <Insets bottom="18.0" left="18.0" right="18.0" top="16.0" />
+                    </padding>
+
+                    <HBox fx:id="boxTitulo" alignment="BOTTOM_LEFT" spacing="10.0">
+                        <Label fx:id="lblTitulo" styleClass="card-title" text="Todos los productos" />
+                        <Label fx:id="lblConteo" styleClass="conteo-articulos" text="13 artículos" />
+                    </HBox>
+
+                    <ScrollPane fx:id="scrProductos" fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS">
+                        <FlowPane fx:id="boxTarjetas" hgap="12.0" prefWrapLength="720.0" vgap="12.0">
+
+                            <VBox fx:id="cardProducto1" prefWidth="168.0" spacing="6.0" styleClass="producto-card">
+                                <StackPane styleClass="card-img">
+                                    <ImageView fitHeight="88.0" fitWidth="88.0" preserveRatio="true">
+                                        <Image url="@../../iconos_Productos/coca-cola.jpg" />
+                                    </ImageView>
+                                </StackPane>
+                                <Label styleClass="card-nombre" text="Coca-Cola Sin Azúcar 600 ml" wrapText="true" />
+                                <Label styleClass="card-marca" text="Coca-Cola" />
+                                <HBox alignment="CENTER_LEFT" spacing="6.0">
+                                    <Label styleClass="card-precio" text="\$18.00" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Label styleClass="pill, pill-ok" text="96 pz" />
+                                </HBox>
+                            </VBox>
+
+                            <VBox fx:id="cardProducto2" prefWidth="168.0" spacing="6.0" styleClass="producto-card">
+                                <StackPane styleClass="card-img">
+                                    <ImageView fitHeight="88.0" fitWidth="88.0" preserveRatio="true">
+                                        <Image url="@../../iconos_Productos/takis.jpg" />
+                                    </ImageView>
+                                </StackPane>
+                                <Label styleClass="card-nombre" text="Takis Fuego 70 g" wrapText="true" />
+                                <Label styleClass="card-marca" text="Barcel" />
+                                <HBox alignment="CENTER_LEFT" spacing="6.0">
+                                    <Label styleClass="card-precio" text="\$19.50" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Label styleClass="pill, pill-ok" text="41 pz" />
+                                </HBox>
+                            </VBox>
+
+                            <!-- Tarjeta seleccionada -->
+                            <VBox fx:id="cardProducto3" prefWidth="168.0" spacing="6.0" styleClass="producto-card, producto-card-sel">
+                                <StackPane styleClass="card-img">
+                                    <ImageView fitHeight="88.0" fitWidth="88.0" preserveRatio="true">
+                                        <Image url="@../../iconos_Productos/chokis.jpg" />
+                                    </ImageView>
+                                </StackPane>
+                                <Label styleClass="card-nombre" text="Chokis Chispas de Chocolate" wrapText="true" />
+                                <Label styleClass="card-marca" text="Marinela" />
+                                <HBox alignment="CENTER_LEFT" spacing="6.0">
+                                    <Label styleClass="card-precio" text="\$16.00" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Label styleClass="pill, pill-ok" text="28 pz" />
+                                </HBox>
+                            </VBox>
+
+                            <VBox fx:id="cardProducto4" prefWidth="168.0" spacing="6.0" styleClass="producto-card">
+                                <StackPane styleClass="card-img">
+                                    <ImageView fitHeight="88.0" fitWidth="88.0" preserveRatio="true">
+                                        <Image url="@../../iconos_Productos/gansito.jpg" />
+                                    </ImageView>
+                                </StackPane>
+                                <Label styleClass="card-nombre" text="Gansito 50 g" wrapText="true" />
+                                <Label styleClass="card-marca" text="Marinela" />
+                                <HBox alignment="CENTER_LEFT" spacing="6.0">
+                                    <Label styleClass="card-precio" text="\$18.00" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Label styleClass="pill, pill-danger" text="7 pz" />
+                                </HBox>
+                            </VBox>
+
+                            <VBox fx:id="cardProducto5" prefWidth="168.0" spacing="6.0" styleClass="producto-card">
+                                <StackPane styleClass="card-img">
+                                    <ImageView fitHeight="88.0" fitWidth="88.0" preserveRatio="true">
+                                        <Image url="@../../iconos_Productos/panBimbo.png" />
+                                    </ImageView>
+                                </StackPane>
+                                <Label styleClass="card-nombre" text="Pan Blanco Grande 680 g" wrapText="true" />
+                                <Label styleClass="card-marca" text="Bimbo" />
+                                <HBox alignment="CENTER_LEFT" spacing="6.0">
+                                    <Label styleClass="card-precio" text="\$52.00" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Label styleClass="pill, pill-warn" text="24 pz" />
+                                </HBox>
+                            </VBox>
+
+                            <VBox fx:id="cardProducto6" prefWidth="168.0" spacing="6.0" styleClass="producto-card">
+                                <StackPane styleClass="card-img">
+                                    <ImageView fitHeight="88.0" fitWidth="88.0" preserveRatio="true">
+                                        <Image url="@../../iconos_Productos/axion.jpg" />
+                                    </ImageView>
+                                </StackPane>
+                                <Label styleClass="card-nombre" text="Axion Lavatrastes Limón 450 g" wrapText="true" />
+                                <Label styleClass="card-marca" text="Colgate-Palmolive" />
+                                <HBox alignment="CENTER_LEFT" spacing="6.0">
+                                    <Label styleClass="card-precio" text="\$34.90" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Label styleClass="pill, pill-ok" text="34 pz" />
+                                </HBox>
+                            </VBox>
+
+                            <VBox fx:id="cardProducto7" prefWidth="168.0" spacing="6.0" styleClass="producto-card">
+                                <StackPane styleClass="card-img">
+                                    <ImageView fitHeight="88.0" fitWidth="88.0" preserveRatio="true">
+                                        <Image url="@../../iconos_Productos/coca-cola.jpg" />
+                                    </ImageView>
+                                </StackPane>
+                                <Label styleClass="card-nombre" text="Sprite 600 ml" wrapText="true" />
+                                <Label styleClass="card-marca" text="Coca-Cola" />
+                                <HBox alignment="CENTER_LEFT" spacing="6.0">
+                                    <Label styleClass="card-precio" text="\$18.00" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Label styleClass="pill, pill-ok" text="64 pz" />
+                                </HBox>
+                            </VBox>
+
+                            <VBox fx:id="cardProducto8" prefWidth="168.0" spacing="6.0" styleClass="producto-card">
+                                <StackPane styleClass="card-img">
+                                    <ImageView fitHeight="88.0" fitWidth="88.0" preserveRatio="true">
+                                        <Image url="@../../iconos_Productos/chokis.jpg" />
+                                    </ImageView>
+                                </StackPane>
+                                <Label styleClass="card-nombre" text="Galletas Marías 170 g" wrapText="true" />
+                                <Label styleClass="card-marca" text="Gamesa" />
+                                <HBox alignment="CENTER_LEFT" spacing="6.0">
+                                    <Label styleClass="card-precio" text="\$22.00" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Label styleClass="pill, pill-ok" text="19 pz" />
+                                </HBox>
+                            </VBox>
+
+                        </FlowPane>
+                    </ScrollPane>
+                </VBox>
+
+                <!-- ============ Ticket ============ -->
+                <VBox fx:id="pnlTicket" minWidth="290.0" prefWidth="290.0" spacing="14.0" styleClass="ticket-panel">
+                    <padding>
+                        <Insets bottom="18.0" left="18.0" right="18.0" top="16.0" />
+                    </padding>
+
+                    <HBox fx:id="boxTituloTicket" alignment="CENTER_LEFT" spacing="10.0">
+                        <Label fx:id="lblTituloTicket" styleClass="card-title" text="Ticket" />
+                        <Label fx:id="lblFolio" styleClass="badge-ticket" text="#1043" />
+                    </HBox>
+
+                    <ComboBox fx:id="cboCliente" maxWidth="Infinity" promptText="Público general" />
+
+                    <!-- Estado vacio -->
+                    <VBox fx:id="boxTicketVacio" alignment="CENTER" spacing="10.0" VBox.vgrow="ALWAYS">
+                        <SVGPath content="M1.5 2.5h2l2 8h8 M4.5 4.5h11l-1.2 4.5h-8.6 M6.2 13.4a1 1 0 1 0 0.01 0 Z M12.2 13.4a1 1 0 1 0 0.01 0 Z" styleClass="icon, icon-carrito-vacio" />
+                        <Region prefHeight="14.0" />
+                        <Label styleClass="ticket-vacio" text="El ticket está vacío." />
+                        <Label styleClass="ticket-vacio" text="Toca un producto para agregarlo." />
+                    </VBox>
+
+                    <!-- Totales -->
+                    <!-- Renglones de detalleventa -->
+                    <HBox fx:id="boxArticulos" alignment="CENTER_LEFT">
+                        <Label styleClass="ticket-etiqueta" text="Artículos" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="lblArticulos" styleClass="ticket-valor" text="0" />
+                    </HBox>
+
+                    <!-- venta.total -->
+                    <HBox fx:id="boxTotal" alignment="CENTER_LEFT">
+                        <Label styleClass="ticket-total-etiqueta" text="TOTAL" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="lblTotal" styleClass="ticket-total" text="\$0.00" />
+                    </HBox>
+
+                    <Button fx:id="btnCobrar" contentDisplay="LEFT" graphicTextGap="8.0" maxWidth="Infinity" styleClass="btn-cobrar" text="Cobrar">
+                        <graphic>
+                            <SVGPath content="M1.5 2.5h2l2 8h8 M4.5 4.5h11l-1.2 4.5h-8.6 M6.2 13.4a1 1 0 1 0 0.01 0 Z M12.2 13.4a1 1 0 1 0 0.01 0 Z" styleClass="icon, icon-white" />
+                        </graphic>
+                    </Button>
+
+                    <Button fx:id="btnCancelar" maxWidth="Infinity" styleClass="btn, btn-ghost" text="Cancelar venta" />
+                </VBox>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>

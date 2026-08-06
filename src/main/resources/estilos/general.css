@@ -406,10 +406,65 @@
     -fx-background-color: transparent;
 }
 
+/* ---------------------------------------------------------
+   Tablas armadas a mano con HBox + Label (cuando no se usa
+   TableView). Mismo aspecto que el TableView de arriba.
+   --------------------------------------------------------- */
+.table-head {
+    -fx-background-color: #171b17;
+    -fx-background-radius: 12 12 0 0;
+    -fx-border-color: transparent transparent -color-border transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 12 16 12 16;
+}
+
+.th {
+    -fx-text-fill: #7f877f;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+
+.row {
+    -fx-padding: 12 16 12 16;
+    -fx-border-color: transparent transparent #1c211c transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-cursor: hand;
+}
+
+.row:hover { -fx-background-color: #171c16; }
+
 /* Textos de celda para tablas armadas a mano con Labels */
 .cell        { -fx-text-fill: #cfd5cf; }
 .cell-strong { -fx-text-fill: -color-text; -fx-font-weight: bold; }
 .cell-num    { -fx-text-fill: -color-text; }
+
+/* Columna de ID: numerito discreto a la izquierda */
+.cell-id {
+    -fx-text-fill: #6d746d;
+    -fx-font-family: "Consolas", "Courier New", monospace;
+    -fx-font-size: 11px;
+}
+
+/* Nota chica debajo de un campo */
+.form-hint {
+    -fx-text-fill: #6d746d;
+    -fx-font-size: 10px;
+}
+
+/* =========================================================
+   Pastillas (semaforo de caducidad, piezas en existencia,
+   cualquier etiqueta corta de color)
+   ========================================================= */
+.pill {
+    -fx-background-radius: 6;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-padding: 3 8 3 8;
+}
+
+.pill-ok     { -fx-background-color: #24401a; -fx-text-fill: #9fe870; }
+.pill-warn   { -fx-background-color: #4a3a12; -fx-text-fill: #e8c15a; }
+.pill-danger { -fx-background-color: #451916; -fx-text-fill: #f0837c; }
 
 /* =========================================================
    Scroll

@@ -53,21 +53,12 @@
 }
 
 /* ---------------------------------------------------------
-   Semaforo de caducidad (columna colCaducidad).
-   Se aplica a un Label puesto como graphic de la celda:
+   El semaforo de caducidad usa .pill / .pill-ok / .pill-warn /
+   .pill-danger, que ahora viven en general.css porque Venta
+   tambien los ocupa para las piezas en existencia.
+
+   En el cellFactory de colCaducidad:
        lbl.getStyleClass().addAll("pill", "pill-ok");
 
-   lima  = vigente
-   ambar = caduca pronto
-   rojo  = urgente
+   lima = vigente | ambar = caduca pronto | rojo = urgente
    --------------------------------------------------------- */
-.pill {
-    -fx-background-radius: 6;
-    -fx-font-size: 10px;
-    -fx-font-weight: bold;
-    -fx-padding: 3 8 3 8;
-}
-
-.pill-ok     { -fx-background-color: #24401a; -fx-text-fill: #9fe870; }
-.pill-warn   { -fx-background-color: #4a3a12; -fx-text-fill: #e8c15a; }
-.pill-danger { -fx-background-color: #451916; -fx-text-fill: #f0837c; }

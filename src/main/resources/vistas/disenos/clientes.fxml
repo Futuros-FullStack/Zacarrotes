@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.SVGPath?>
+
+<!--
+    Vista de Clientes - simulacion del diseno (diseños/clientes.png).
+    Filas estaticas de ejemplo: el back las cambia por un TableView.
+-->
+
+<BorderPane fx:id="pnlRaiz" prefHeight="720.0" prefWidth="1150.0" stylesheets="@../../estilos/general.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
+
+    <top>
+        <fx:include fx:id="navbar" source="../comunes/navbar.fxml" />
+    </top>
+
+    <center>
+        <HBox fx:id="pnlContenido" spacing="0.0">
+
+            <!-- Formulario -->
+            <VBox fx:id="pnlFormulario" minWidth="310.0" prefWidth="310.0" spacing="14.0" styleClass="form-card">
+                <padding>
+                    <Insets bottom="18.0" left="18.0" right="18.0" top="18.0" />
+                </padding>
+
+                <Label fx:id="lblTituloFormulario" styleClass="card-title" text="Datos del cliente" />
+
+                <VBox fx:id="boxNombre" spacing="6.0">
+                    <Label fx:id="lblNombre" styleClass="field-label" text="Nombre" />
+                    <TextField fx:id="txtNombre" promptText="Carmen Ruiz" />
+                </VBox>
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <Button fx:id="btnGuardar" contentDisplay="LEFT" graphicTextGap="8.0" maxWidth="Infinity" styleClass="btn, btn-primary" text="Guardar">
+                    <graphic>
+                        <SVGPath content="M2.5 2.5h8l3 3v8h-11z M5 2.5v4h5v-4 M5 13.5v-4h6v4" styleClass="icon, icon-white" />
+                    </graphic>
+                </Button>
+
+                <Button fx:id="btnEliminar" contentDisplay="LEFT" graphicTextGap="8.0" maxWidth="Infinity" styleClass="btn, btn-danger" text="Eliminar seleccionado">
+                    <graphic>
+                        <SVGPath content="M2.5 4h11 M6 4V2.2h4V4 M4 4l0.8 10h6.4L12 4 M6.6 6.5v5 M9.4 6.5v5" styleClass="icon, icon-danger" />
+                    </graphic>
+                </Button>
+            </VBox>
+
+            <!-- Listado -->
+            <VBox fx:id="pnlListado" spacing="12.0" styleClass="catalog-card" HBox.hgrow="ALWAYS">
+                <padding>
+                    <Insets bottom="18.0" left="18.0" right="18.0" top="18.0" />
+                </padding>
+
+                <HBox fx:id="boxTitulo" alignment="CENTER_LEFT" spacing="10.0">
+                    <Label fx:id="lblTitulo" styleClass="card-title" text="Clientes registrados" />
+                    <Label fx:id="lblTotalClientes" styleClass="badge-count" text="6" />
+                </HBox>
+
+                <VBox fx:id="pnlTabla" styleClass="table-card" VBox.vgrow="ALWAYS">
+
+                    <!-- cliente(idcliente, nombre) -->
+                    <HBox fx:id="boxEncabezados" alignment="CENTER_LEFT" spacing="12.0" styleClass="table-head">
+                        <Label fx:id="lblColId" minWidth="60.0" prefWidth="60.0" styleClass="th" text="IDCLIENTE" />
+                        <Label fx:id="lblColNombre" prefWidth="400.0" styleClass="th" text="NOMBRE" HBox.hgrow="ALWAYS" />
+                    </HBox>
+
+                    <ScrollPane fx:id="scrClientes" fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS">
+                        <VBox fx:id="boxFilas">
+
+                            <HBox fx:id="filaCliente1" alignment="CENTER_LEFT" spacing="12.0" styleClass="row">
+                                <Label minWidth="60.0" prefWidth="60.0" styleClass="cell-id" text="1" />
+                                <Label prefWidth="400.0" styleClass="cell-strong" text="Desconocido" HBox.hgrow="ALWAYS" />
+                            </HBox>
+
+                            <HBox fx:id="filaCliente2" alignment="CENTER_LEFT" spacing="12.0" styleClass="row">
+                                <Label minWidth="60.0" prefWidth="60.0" styleClass="cell-id" text="2" />
+                                <Label prefWidth="400.0" styleClass="cell-strong" text="Carmen Ruiz" HBox.hgrow="ALWAYS" />
+                            </HBox>
+
+                            <HBox fx:id="filaCliente3" alignment="CENTER_LEFT" spacing="12.0" styleClass="row">
+                                <Label minWidth="60.0" prefWidth="60.0" styleClass="cell-id" text="3" />
+                                <Label prefWidth="400.0" styleClass="cell-strong" text="Kevin Ramírez" HBox.hgrow="ALWAYS" />
+                            </HBox>
+
+                            <HBox fx:id="filaCliente4" alignment="CENTER_LEFT" spacing="12.0" styleClass="row">
+                                <Label minWidth="60.0" prefWidth="60.0" styleClass="cell-id" text="4" />
+                                <Label prefWidth="400.0" styleClass="cell-strong" text="Lupita Hernández" HBox.hgrow="ALWAYS" />
+                            </HBox>
+
+                            <HBox fx:id="filaCliente5" alignment="CENTER_LEFT" spacing="12.0" styleClass="row">
+                                <Label minWidth="60.0" prefWidth="60.0" styleClass="cell-id" text="5" />
+                                <Label prefWidth="400.0" styleClass="cell-strong" text="Jesús Morales" HBox.hgrow="ALWAYS" />
+                            </HBox>
+
+                            <HBox fx:id="filaCliente6" alignment="CENTER_LEFT" spacing="12.0" styleClass="row">
+                                <Label minWidth="60.0" prefWidth="60.0" styleClass="cell-id" text="6" />
+                                <Label prefWidth="400.0" styleClass="cell-strong" text="Rosa Elena Vázquez" HBox.hgrow="ALWAYS" />
+                            </HBox>
+
+                        </VBox>
+                    </ScrollPane>
+                </VBox>
+            </VBox>
+        </HBox>
+    </center>
+
+    <bottom>
+        <HBox fx:id="pnlBarraEstado" alignment="CENTER_LEFT" spacing="8.0" styleClass="statusbar" />
+    </bottom>
+</BorderPane>

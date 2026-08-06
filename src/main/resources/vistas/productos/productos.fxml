@@ -7,9 +7,9 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -97,16 +97,16 @@
 
                 <VBox fx:id="boxProveedor" spacing="6.0">
                     <Label fx:id="lblProveedor" styleClass="field-label" text="Proveedor" />
-                    <ComboBox fx:id="cboProveedor" maxWidth="Infinity" promptText="Grupo Lala">
+                    <!-- Los mismos proveedores de la vista Proveedores: es la FK idproveedor -->
+                    <ComboBox fx:id="cboProveedor" maxWidth="Infinity" promptText="Grupo Bimbo">
                         <items>
                             <FXCollections fx:factory="observableArrayList">
-                                <String fx:value="Grupo Lala" />
-                                <String fx:value="Coca-Cola FEMSA" />
                                 <String fx:value="Grupo Bimbo" />
-                                <String fx:value="Barcel" />
-                                <String fx:value="Sabritas" />
-                                <String fx:value="Marinela" />
-                                <String fx:value="Colgate-Palmolive" />
+                                <String fx:value="Coca-Cola FEMSA" />
+                                <String fx:value="Grupo Lala" />
+                                <String fx:value="PepsiCo México" />
+                                <String fx:value="Conservas La Costeña" />
+                                <String fx:value="Abarrotera del Centro" />
                             </FXCollections>
                         </items>
                     </ComboBox>
@@ -120,8 +120,6 @@
                         <SVGPath content="M2.5 2.5h8l3 3v8h-11z M5 2.5v4h5v-4 M5 13.5v-4h6v4" styleClass="icon, icon-white" />
                     </graphic>
                 </Button>
-
-                <HBox fx:id="boxAcciones" spacing="10.0" />
 
                 <Button fx:id="btnEliminar" contentDisplay="LEFT" graphicTextGap="8.0" maxWidth="Infinity" styleClass="btn, btn-danger" text="Eliminar seleccionado">
                     <graphic>
@@ -138,39 +136,134 @@
 
                 <HBox fx:id="boxCatalogo" alignment="CENTER_LEFT" spacing="10.0">
                     <Label fx:id="lblTituloCatalogo" styleClass="card-title" text="Catálogo" />
-                    <Label fx:id="lblTotalProductos" styleClass="badge-count" text="13" />
+                    <Label fx:id="lblTotalProductos" styleClass="badge-count" text="6" />
                 </HBox>
 
                 <VBox fx:id="pnlTabla" styleClass="table-card" VBox.vgrow="ALWAYS">
 
                     <!--
-                        Catalogo de productos.
-                        Las columnas ya tienen fx:id: el back solo debe asignarles
-                        el cellValueFactory y llenar tblProductos.setItems(...).
+                        Catalogo, segun la vista v_catalogo_completo:
+                        imagen_url, nombreproducto, marca, precio, cantidad,
+                        caducidad y nombreproveedor (del JOIN con proveedor).
                     -->
-                    <TableView fx:id="tblProductos" VBox.vgrow="ALWAYS">
-                        <columnResizePolicy>
-                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                        </columnResizePolicy>
-                        <columns>
-                            <TableColumn fx:id="colIcono" maxWidth="56.0" minWidth="56.0" prefWidth="56.0"
-                                         resizable="false" sortable="false" text="" />
-                            <TableColumn fx:id="colProducto" minWidth="200.0" prefWidth="250.0" text="PRODUCTO" />
-                            <TableColumn fx:id="colMarca" maxWidth="150.0" minWidth="110.0" prefWidth="120.0" text="MARCA" />
-                            <TableColumn fx:id="colPrecio" maxWidth="90.0" minWidth="75.0" prefWidth="80.0"
-                                         style="-fx-alignment: CENTER_RIGHT;" text="PRECIO" />
-                            <TableColumn fx:id="colCantidad" maxWidth="70.0" minWidth="55.0" prefWidth="60.0"
-                                         style="-fx-alignment: CENTER_RIGHT;" text="CANT." />
-                            <TableColumn fx:id="colCaducidad" maxWidth="115.0" minWidth="100.0" prefWidth="105.0" text="CADUCIDAD" />
-                            <TableColumn fx:id="colProveedor" maxWidth="180.0" minWidth="135.0" prefWidth="145.0" text="PROVEEDOR" />
-                        </columns>
-                        <placeholder>
-                            <Label styleClass="tabla-vacia" text="Sin productos que mostrar" />
-                        </placeholder>
-                    </TableView>
+                    <HBox fx:id="boxEncabezados" alignment="CENTER_LEFT" spacing="12.0" styleClass="table-head">
+                        <Label fx:id="lblColIcono" minWidth="32.0" prefWidth="32.0" styleClass="th" text="" />
+                        <Label fx:id="lblColProducto" prefWidth="250.0" styleClass="th" text="PRODUCTO" HBox.hgrow="ALWAYS" />
+                        <Label fx:id="lblColMarca" minWidth="110.0" prefWidth="110.0" styleClass="th" text="MARCA" />
+                        <Label fx:id="lblColPrecio" alignment="CENTER_RIGHT" minWidth="70.0" prefWidth="70.0" styleClass="th" text="PRECIO" />
+                        <Label fx:id="lblColCantidad" alignment="CENTER_RIGHT" minWidth="50.0" prefWidth="50.0" styleClass="th" text="CANT." />
+                        <Label fx:id="lblColCaducidad" minWidth="95.0" prefWidth="95.0" styleClass="th" text="CADUCIDAD" />
+                        <Label fx:id="lblColProveedor" minWidth="135.0" prefWidth="135.0" styleClass="th" text="PROVEEDOR" />
+                    </HBox>
+
+                    <ScrollPane fx:id="scrCatalogo" fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS">
+                        <VBox fx:id="boxFilas">
+
+                            <HBox fx:id="filaProducto1" alignment="CENTER_LEFT" spacing="12.0" styleClass="row">
+                                <StackPane styleClass="thumb-producto">
+                                    <ImageView fitHeight="26.0" fitWidth="26.0" preserveRatio="true">
+                                        <Image url="@../../iconos_Productos/coca-cola.jpg" />
+                                    </ImageView>
+                                </StackPane>
+                                <Label prefWidth="250.0" styleClass="cell-strong" text="Coca-Cola Sin Azúcar 600 ml" HBox.hgrow="ALWAYS" />
+                                <Label minWidth="110.0" prefWidth="110.0" styleClass="cell" text="Coca-Cola" />
+                                <Label alignment="CENTER_RIGHT" minWidth="70.0" prefWidth="70.0" styleClass="cell-num" text="\$18.00" />
+                                <Label alignment="CENTER_RIGHT" minWidth="50.0" prefWidth="50.0" styleClass="cell-num" text="96" />
+                                <HBox minWidth="95.0" prefWidth="95.0">
+                                    <Label styleClass="pill, pill-ok" text="14/03/27" />
+                                </HBox>
+                                <Label minWidth="135.0" prefWidth="135.0" styleClass="cell" text="Coca-Cola FEMSA" />
+                            </HBox>
+
+                            <HBox fx:id="filaProducto2" alignment="CENTER_LEFT" spacing="12.0" styleClass="row">
+                                <StackPane styleClass="thumb-producto">
+                                    <ImageView fitHeight="26.0" fitWidth="26.0" preserveRatio="true">
+                                        <Image url="@../../iconos_Productos/panBimbo.png" />
+                                    </ImageView>
+                                </StackPane>
+                                <Label prefWidth="250.0" styleClass="cell-strong" text="Pan Blanco Grande 680 g" HBox.hgrow="ALWAYS" />
+                                <Label minWidth="110.0" prefWidth="110.0" styleClass="cell" text="Bimbo" />
+                                <Label alignment="CENTER_RIGHT" minWidth="70.0" prefWidth="70.0" styleClass="cell-num" text="\$52.00" />
+                                <Label alignment="CENTER_RIGHT" minWidth="50.0" prefWidth="50.0" styleClass="cell-num" text="24" />
+                                <HBox minWidth="95.0" prefWidth="95.0">
+                                    <Label styleClass="pill, pill-warn" text="02/09/26" />
+                                </HBox>
+                                <Label minWidth="135.0" prefWidth="135.0" styleClass="cell" text="Grupo Bimbo" />
+                            </HBox>
+
+                            <HBox fx:id="filaProducto3" alignment="CENTER_LEFT" spacing="12.0" styleClass="row">
+                                <StackPane styleClass="thumb-producto">
+                                    <ImageView fitHeight="26.0" fitWidth="26.0" preserveRatio="true">
+                                        <Image url="@../../iconos_Productos/takis.jpg" />
+                                    </ImageView>
+                                </StackPane>
+                                <Label prefWidth="250.0" styleClass="cell-strong" text="Takis Fuego 70 g" HBox.hgrow="ALWAYS" />
+                                <Label minWidth="110.0" prefWidth="110.0" styleClass="cell" text="Barcel" />
+                                <Label alignment="CENTER_RIGHT" minWidth="70.0" prefWidth="70.0" styleClass="cell-num" text="\$19.50" />
+                                <Label alignment="CENTER_RIGHT" minWidth="50.0" prefWidth="50.0" styleClass="cell-num" text="41" />
+                                <HBox minWidth="95.0" prefWidth="95.0">
+                                    <Label styleClass="pill, pill-ok" text="28/10/26" />
+                                </HBox>
+                                <Label minWidth="135.0" prefWidth="135.0" styleClass="cell" text="Grupo Bimbo" />
+                            </HBox>
+
+                            <HBox fx:id="filaProducto4" alignment="CENTER_LEFT" spacing="12.0" styleClass="row">
+                                <StackPane styleClass="thumb-producto">
+                                    <ImageView fitHeight="26.0" fitWidth="26.0" preserveRatio="true">
+                                        <Image url="@../../iconos_Productos/chokis.jpg" />
+                                    </ImageView>
+                                </StackPane>
+                                <Label prefWidth="250.0" styleClass="cell-strong" text="Chokis Chispas de Chocolate" HBox.hgrow="ALWAYS" />
+                                <Label minWidth="110.0" prefWidth="110.0" styleClass="cell" text="Marinela" />
+                                <Label alignment="CENTER_RIGHT" minWidth="70.0" prefWidth="70.0" styleClass="cell-num" text="\$16.00" />
+                                <Label alignment="CENTER_RIGHT" minWidth="50.0" prefWidth="50.0" styleClass="cell-num" text="28" />
+                                <HBox minWidth="95.0" prefWidth="95.0">
+                                    <Label styleClass="pill, pill-ok" text="11/12/26" />
+                                </HBox>
+                                <Label minWidth="135.0" prefWidth="135.0" styleClass="cell" text="Grupo Bimbo" />
+                            </HBox>
+
+                            <HBox fx:id="filaProducto5" alignment="CENTER_LEFT" spacing="12.0" styleClass="row">
+                                <StackPane styleClass="thumb-producto">
+                                    <ImageView fitHeight="26.0" fitWidth="26.0" preserveRatio="true">
+                                        <Image url="@../../iconos_Productos/gansito.jpg" />
+                                    </ImageView>
+                                </StackPane>
+                                <Label prefWidth="250.0" styleClass="cell-strong" text="Gansito 50 g" HBox.hgrow="ALWAYS" />
+                                <Label minWidth="110.0" prefWidth="110.0" styleClass="cell" text="Marinela" />
+                                <Label alignment="CENTER_RIGHT" minWidth="70.0" prefWidth="70.0" styleClass="cell-num" text="\$18.00" />
+                                <Label alignment="CENTER_RIGHT" minWidth="50.0" prefWidth="50.0" styleClass="cell-num" text="7" />
+                                <HBox minWidth="95.0" prefWidth="95.0">
+                                    <Label styleClass="pill, pill-danger" text="19/08/26" />
+                                </HBox>
+                                <Label minWidth="135.0" prefWidth="135.0" styleClass="cell" text="Grupo Bimbo" />
+                            </HBox>
+
+                            <HBox fx:id="filaProducto6" alignment="CENTER_LEFT" spacing="12.0" styleClass="row">
+                                <StackPane styleClass="thumb-producto">
+                                    <ImageView fitHeight="26.0" fitWidth="26.0" preserveRatio="true">
+                                        <Image url="@../../iconos_Productos/axion.jpg" />
+                                    </ImageView>
+                                </StackPane>
+                                <Label prefWidth="250.0" styleClass="cell-strong" text="Axion Lavatrastes Limón 450 g" HBox.hgrow="ALWAYS" />
+                                <Label minWidth="110.0" prefWidth="110.0" styleClass="cell" text="Colgate-Palmolive" />
+                                <Label alignment="CENTER_RIGHT" minWidth="70.0" prefWidth="70.0" styleClass="cell-num" text="\$34.90" />
+                                <Label alignment="CENTER_RIGHT" minWidth="50.0" prefWidth="50.0" styleClass="cell-num" text="34" />
+                                <HBox minWidth="95.0" prefWidth="95.0">
+                                    <Label styleClass="pill, pill-ok" text="02/02/27" />
+                                </HBox>
+                                <Label minWidth="135.0" prefWidth="135.0" styleClass="cell" text="Abarrotera del Centro" />
+                            </HBox>
+
+                        </VBox>
+                    </ScrollPane>
                 </VBox>
             </VBox>
         </HBox>
     </center>
+
+    <bottom>
+        <HBox fx:id="pnlBarraEstado" alignment="CENTER_LEFT" prefHeight="0.0" prefWidth="1150.0" spacing="8.0" styleClass="statusbar" />
+    </bottom>
 
 </BorderPane>
