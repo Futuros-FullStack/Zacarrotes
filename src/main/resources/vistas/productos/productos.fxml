@@ -7,9 +7,10 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -20,12 +21,20 @@
 
 <!--
     Vista de Productos - Zacarrotes
-    Maqueta 100% declarativa (FXML + estilos/productos.css). Sin controlador ni logica.
+    Catalogo con tabla REAL (TableView) sobre la vista v_catalogo_completo.
 
     Convencion de fx:id:
       txt* TextField | cbo* ComboBox | dtp* DatePicker | btn* Button | tgb* ToggleButton
-      lbl* Label | img* ImageView | pnl*/box* contenedores | scr* ScrollPane
-    Las filas del catalogo llevan sufijo 1..6 (son datos de ejemplo).
+      lbl* Label | img* ImageView | tbl* TableView | col* TableColumn | pnl*/box* contenedores
+
+    Modelo esperado: Producto con imagen (javafx.scene.image.Image, en
+    memoria), nombreproducto, marca, precio, cantidad, caducidad y
+    nombreproveedor (este ultimo del JOIN con proveedor).
+
+    Dos columnas necesitan cellFactory desde el controlador, no basta el
+    PropertyValueFactory:
+      - colIcono     : meter el Image en un ImageView de 32 px
+      - colCaducidad : pintar la fecha como Label .pill + .pill-ok/warn/danger
 -->
 
 <BorderPane fx:id="pnlRaiz" prefHeight="720.0" prefWidth="1150.0" stylesheets="@../../estilos/general.css, @../../estilos/productos.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
@@ -136,127 +145,70 @@
 
                 <HBox fx:id="boxCatalogo" alignment="CENTER_LEFT" spacing="10.0">
                     <Label fx:id="lblTituloCatalogo" styleClass="card-title" text="Catálogo" />
-                    <Label fx:id="lblTotalProductos" styleClass="badge-count" text="6" />
+                    <Label fx:id="lblTotalProductos" styleClass="badge-count" text="0" />
                 </HBox>
 
+                <!-- El marco redondeado lo pone el VBox .table-card; el TableView va transparente encima -->
                 <VBox fx:id="pnlTabla" styleClass="table-card" VBox.vgrow="ALWAYS">
+                    <TableView fx:id="tblProductos" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <!--
+                                Miniatura. La columna entrega el Image ya cargado
+                                (Producto.getImagen()); el cellFactory solo lo mete
+                                en un ImageView de 32 px dentro de .thumb-producto.
+                            -->
+                            <TableColumn fx:id="colIcono" maxWidth="56.0" minWidth="48.0" prefWidth="52.0" resizable="false" sortable="false" text="">
+                                <cellValueFactory>
+                                    <PropertyValueFactory property="imagen" />
+                                </cellValueFactory>
+                            </TableColumn>
 
-                    <!--
-                        Catalogo, segun la vista v_catalogo_completo:
-                        imagen_url, nombreproducto, marca, precio, cantidad,
-                        caducidad y nombreproveedor (del JOIN con proveedor).
-                    -->
-                    <HBox fx:id="boxEncabezados" alignment="CENTER_LEFT" spacing="12.0" styleClass="table-head">
-                        <Label fx:id="lblColIcono" minWidth="32.0" prefWidth="32.0" styleClass="th" text="" />
-                        <Label fx:id="lblColProducto" prefWidth="250.0" styleClass="th" text="PRODUCTO" HBox.hgrow="ALWAYS" />
-                        <Label fx:id="lblColMarca" minWidth="110.0" prefWidth="110.0" styleClass="th" text="MARCA" />
-                        <Label fx:id="lblColPrecio" alignment="CENTER_RIGHT" minWidth="70.0" prefWidth="70.0" styleClass="th" text="PRECIO" />
-                        <Label fx:id="lblColCantidad" alignment="CENTER_RIGHT" minWidth="50.0" prefWidth="50.0" styleClass="th" text="CANT." />
-                        <Label fx:id="lblColCaducidad" minWidth="95.0" prefWidth="95.0" styleClass="th" text="CADUCIDAD" />
-                        <Label fx:id="lblColProveedor" minWidth="135.0" prefWidth="135.0" styleClass="th" text="PROVEEDOR" />
-                    </HBox>
+                            <TableColumn fx:id="colProducto" minWidth="200.0" prefWidth="260.0" style="-fx-font-weight: bold;" text="PRODUCTO">
+                                <cellValueFactory>
+                                    <PropertyValueFactory property="nombreproducto" />
+                                </cellValueFactory>
+                            </TableColumn>
 
-                    <ScrollPane fx:id="scrCatalogo" fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS">
-                        <VBox fx:id="boxFilas">
+                            <TableColumn fx:id="colMarca" minWidth="100.0" prefWidth="120.0" text="MARCA">
+                                <cellValueFactory>
+                                    <PropertyValueFactory property="marca" />
+                                </cellValueFactory>
+                            </TableColumn>
 
-                            <HBox fx:id="filaProducto1" alignment="CENTER_LEFT" spacing="12.0" styleClass="row">
-                                <StackPane styleClass="thumb-producto">
-                                    <ImageView fitHeight="26.0" fitWidth="26.0" preserveRatio="true">
-                                        <Image url="@../../iconos_Productos/coca-cola.jpg" />
-                                    </ImageView>
-                                </StackPane>
-                                <Label prefWidth="250.0" styleClass="cell-strong" text="Coca-Cola Sin Azúcar 600 ml" HBox.hgrow="ALWAYS" />
-                                <Label minWidth="110.0" prefWidth="110.0" styleClass="cell" text="Coca-Cola" />
-                                <Label alignment="CENTER_RIGHT" minWidth="70.0" prefWidth="70.0" styleClass="cell-num" text="\$18.00" />
-                                <Label alignment="CENTER_RIGHT" minWidth="50.0" prefWidth="50.0" styleClass="cell-num" text="96" />
-                                <HBox minWidth="95.0" prefWidth="95.0">
-                                    <Label styleClass="pill, pill-ok" text="14/03/27" />
-                                </HBox>
-                                <Label minWidth="135.0" prefWidth="135.0" styleClass="cell" text="Coca-Cola FEMSA" />
-                            </HBox>
+                            <TableColumn fx:id="colPrecio" minWidth="70.0" prefWidth="80.0" style="-fx-alignment: CENTER-RIGHT;" text="PRECIO">
+                                <cellValueFactory>
+                                    <PropertyValueFactory property="precio" />
+                                </cellValueFactory>
+                            </TableColumn>
 
-                            <HBox fx:id="filaProducto2" alignment="CENTER_LEFT" spacing="12.0" styleClass="row">
-                                <StackPane styleClass="thumb-producto">
-                                    <ImageView fitHeight="26.0" fitWidth="26.0" preserveRatio="true">
-                                        <Image url="@../../iconos_Productos/panBimbo.png" />
-                                    </ImageView>
-                                </StackPane>
-                                <Label prefWidth="250.0" styleClass="cell-strong" text="Pan Blanco Grande 680 g" HBox.hgrow="ALWAYS" />
-                                <Label minWidth="110.0" prefWidth="110.0" styleClass="cell" text="Bimbo" />
-                                <Label alignment="CENTER_RIGHT" minWidth="70.0" prefWidth="70.0" styleClass="cell-num" text="\$52.00" />
-                                <Label alignment="CENTER_RIGHT" minWidth="50.0" prefWidth="50.0" styleClass="cell-num" text="24" />
-                                <HBox minWidth="95.0" prefWidth="95.0">
-                                    <Label styleClass="pill, pill-warn" text="02/09/26" />
-                                </HBox>
-                                <Label minWidth="135.0" prefWidth="135.0" styleClass="cell" text="Grupo Bimbo" />
-                            </HBox>
+                            <TableColumn fx:id="colCantidad" minWidth="50.0" prefWidth="60.0" style="-fx-alignment: CENTER-RIGHT;" text="CANT.">
+                                <cellValueFactory>
+                                    <PropertyValueFactory property="cantidad" />
+                                </cellValueFactory>
+                            </TableColumn>
 
-                            <HBox fx:id="filaProducto3" alignment="CENTER_LEFT" spacing="12.0" styleClass="row">
-                                <StackPane styleClass="thumb-producto">
-                                    <ImageView fitHeight="26.0" fitWidth="26.0" preserveRatio="true">
-                                        <Image url="@../../iconos_Productos/takis.jpg" />
-                                    </ImageView>
-                                </StackPane>
-                                <Label prefWidth="250.0" styleClass="cell-strong" text="Takis Fuego 70 g" HBox.hgrow="ALWAYS" />
-                                <Label minWidth="110.0" prefWidth="110.0" styleClass="cell" text="Barcel" />
-                                <Label alignment="CENTER_RIGHT" minWidth="70.0" prefWidth="70.0" styleClass="cell-num" text="\$19.50" />
-                                <Label alignment="CENTER_RIGHT" minWidth="50.0" prefWidth="50.0" styleClass="cell-num" text="41" />
-                                <HBox minWidth="95.0" prefWidth="95.0">
-                                    <Label styleClass="pill, pill-ok" text="28/10/26" />
-                                </HBox>
-                                <Label minWidth="135.0" prefWidth="135.0" styleClass="cell" text="Grupo Bimbo" />
-                            </HBox>
+                            <!-- Semaforo: el cellFactory pinta la fecha como .pill + .pill-ok/warn/danger -->
+                            <TableColumn fx:id="colCaducidad" minWidth="95.0" prefWidth="110.0" text="CADUCIDAD">
+                                <cellValueFactory>
+                                    <PropertyValueFactory property="caducidad" />
+                                </cellValueFactory>
+                            </TableColumn>
 
-                            <HBox fx:id="filaProducto4" alignment="CENTER_LEFT" spacing="12.0" styleClass="row">
-                                <StackPane styleClass="thumb-producto">
-                                    <ImageView fitHeight="26.0" fitWidth="26.0" preserveRatio="true">
-                                        <Image url="@../../iconos_Productos/chokis.jpg" />
-                                    </ImageView>
-                                </StackPane>
-                                <Label prefWidth="250.0" styleClass="cell-strong" text="Chokis Chispas de Chocolate" HBox.hgrow="ALWAYS" />
-                                <Label minWidth="110.0" prefWidth="110.0" styleClass="cell" text="Marinela" />
-                                <Label alignment="CENTER_RIGHT" minWidth="70.0" prefWidth="70.0" styleClass="cell-num" text="\$16.00" />
-                                <Label alignment="CENTER_RIGHT" minWidth="50.0" prefWidth="50.0" styleClass="cell-num" text="28" />
-                                <HBox minWidth="95.0" prefWidth="95.0">
-                                    <Label styleClass="pill, pill-ok" text="11/12/26" />
-                                </HBox>
-                                <Label minWidth="135.0" prefWidth="135.0" styleClass="cell" text="Grupo Bimbo" />
-                            </HBox>
+                            <TableColumn fx:id="colProveedor" minWidth="130.0" prefWidth="160.0" text="PROVEEDOR">
+                                <cellValueFactory>
+                                    <PropertyValueFactory property="nombreproveedor" />
+                                </cellValueFactory>
+                            </TableColumn>
+                        </columns>
 
-                            <HBox fx:id="filaProducto5" alignment="CENTER_LEFT" spacing="12.0" styleClass="row">
-                                <StackPane styleClass="thumb-producto">
-                                    <ImageView fitHeight="26.0" fitWidth="26.0" preserveRatio="true">
-                                        <Image url="@../../iconos_Productos/gansito.jpg" />
-                                    </ImageView>
-                                </StackPane>
-                                <Label prefWidth="250.0" styleClass="cell-strong" text="Gansito 50 g" HBox.hgrow="ALWAYS" />
-                                <Label minWidth="110.0" prefWidth="110.0" styleClass="cell" text="Marinela" />
-                                <Label alignment="CENTER_RIGHT" minWidth="70.0" prefWidth="70.0" styleClass="cell-num" text="\$18.00" />
-                                <Label alignment="CENTER_RIGHT" minWidth="50.0" prefWidth="50.0" styleClass="cell-num" text="7" />
-                                <HBox minWidth="95.0" prefWidth="95.0">
-                                    <Label styleClass="pill, pill-danger" text="19/08/26" />
-                                </HBox>
-                                <Label minWidth="135.0" prefWidth="135.0" styleClass="cell" text="Grupo Bimbo" />
-                            </HBox>
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                        </columnResizePolicy>
 
-                            <HBox fx:id="filaProducto6" alignment="CENTER_LEFT" spacing="12.0" styleClass="row">
-                                <StackPane styleClass="thumb-producto">
-                                    <ImageView fitHeight="26.0" fitWidth="26.0" preserveRatio="true">
-                                        <Image url="@../../iconos_Productos/axion.jpg" />
-                                    </ImageView>
-                                </StackPane>
-                                <Label prefWidth="250.0" styleClass="cell-strong" text="Axion Lavatrastes Limón 450 g" HBox.hgrow="ALWAYS" />
-                                <Label minWidth="110.0" prefWidth="110.0" styleClass="cell" text="Colgate-Palmolive" />
-                                <Label alignment="CENTER_RIGHT" minWidth="70.0" prefWidth="70.0" styleClass="cell-num" text="\$34.90" />
-                                <Label alignment="CENTER_RIGHT" minWidth="50.0" prefWidth="50.0" styleClass="cell-num" text="34" />
-                                <HBox minWidth="95.0" prefWidth="95.0">
-                                    <Label styleClass="pill, pill-ok" text="02/02/27" />
-                                </HBox>
-                                <Label minWidth="135.0" prefWidth="135.0" styleClass="cell" text="Abarrotera del Centro" />
-                            </HBox>
-
-                        </VBox>
-                    </ScrollPane>
+                        <placeholder>
+                            <Label fx:id="lblTablaVacia" styleClass="tabla-vacia" text="No hay productos en el catálogo" />
+                        </placeholder>
+                    </TableView>
                 </VBox>
             </VBox>
         </HBox>
