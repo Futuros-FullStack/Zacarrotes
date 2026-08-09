@@ -41,13 +41,10 @@
 
     <!-- Secciones -->
     <HBox fx:id="boxNavegacion" alignment="CENTER" spacing="2.0" styleClass="nav-bar">
-        <ToggleButton fx:id="tgbVenta" contentDisplay="LEFT" graphicTextGap="7.0" onAction="#irAVenta" styleClass="nav-item" text="Venta">
+        <ToggleButton fx:id="tgbVenta" contentDisplay="LEFT" graphicTextGap="7.0" onAction="#irAVenta" styleClass="nav-item" text="Venta" toggleGroup="$navGroup">
             <graphic>
                 <SVGPath content="M1.5 2.5h2l2 8h8 M4.5 4.5h11l-1.2 4.5h-8.6 M6.2 13.4a1 1 0 1 0 0.01 0 Z M12.2 13.4a1 1 0 1 0 0.01 0 Z" styleClass="icon" />
             </graphic>
-         <toggleGroup>
-            <ToggleGroup fx:id="navGroup" />
-         </toggleGroup>
         </ToggleButton>
 
         <ToggleButton fx:id="tgbProductos" contentDisplay="LEFT" graphicTextGap="7.0" onAction="#irAProductos" styleClass="nav-item" text="Productos" toggleGroup="$navGroup">

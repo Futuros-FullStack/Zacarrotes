@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<!--
+    Tarjeta de producto de la vista Venta.
+
+    Esta es LA plantilla: el diseno de la tarjeta vive aqui y en ningun
+    otro lado. El controlador de Venta la carga una vez por producto y
+    solo rellena los fx:id; no arma VBox ni Labels a mano.
+
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/vistas/comunes/tarjeta-producto.fxml"));
+        VBox tarjeta = loader.load();               // una instancia nueva por producto
+        TarjetaProductoController c = loader.getController();
+        c.mostrar(producto);
+        boxTarjetas.getChildren().add(tarjeta);
+
+    OJO: hay que crear un FXMLLoader NUEVO por cada tarjeta. Si reusas el
+    mismo, load() te devuelve siempre el mismo nodo y solo veras una.
+
+    lblExistencia trae .pill-ok por defecto para que se vea bien en Scene
+    Builder; el controlador cambia el modificador segun las piezas:
+        lblExistencia.getStyleClass().setAll("pill", "pill-danger");
+
+    Trae su propio stylesheet para poder abrirla sola en Scene Builder,
+    igual que navbar.fxml.
+-->
+
+<VBox fx:id="pnlTarjeta" prefWidth="168.0" spacing="6.0" styleClass="producto-card" stylesheets="@../../estilos/general.css, @../../estilos/venta.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
+
+    <StackPane fx:id="pnlFoto" styleClass="card-img">
+        <ImageView fx:id="imgFoto" fitHeight="88.0" fitWidth="88.0" preserveRatio="true" />
+    </StackPane>
+
+    <Label fx:id="lblNombre" styleClass="card-nombre" text="Nombre del producto" wrapText="true" />
+    <Label fx:id="lblMarca" styleClass="card-marca" text="Marca" />
+
+    <HBox fx:id="boxPrecio" alignment="CENTER_LEFT" spacing="6.0">
+        <Label fx:id="lblPrecio" styleClass="card-precio" text="\$0.00" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Label fx:id="lblExistencia" styleClass="pill, pill-ok" text="0 pz" />
+    </HBox>
+</VBox>
