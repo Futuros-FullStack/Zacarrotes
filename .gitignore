@@ -1,1 +1,14 @@
 /target/
+/out/
+
+# Archivos locales con posibles credenciales: NUNCA subir al repo
+.env
+.env.*
+*.env
+nbactions.local.xml
+**/nbactions-local.xml
+
+# Config local de IDE
+/nbproject/private/
+/.idea/
+*.iml

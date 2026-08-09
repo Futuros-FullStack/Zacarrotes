@@ -24,6 +24,7 @@
     PropertyValueFactory leen sus getters).
 -->
 
+<BorderPane fx:id="pnlRaiz" prefHeight="720.0" prefWidth="1150.0" stylesheets="@../../estilos/general.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.zacarrotes.ProveedoresController">
 <BorderPane fx:id="pnlRaiz" prefHeight="720.0" prefWidth="1150.0" stylesheets="@../../estilos/general.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="michelle.zacarrotes.controlador.ProveedorController">
 
     <top>
@@ -59,12 +60,14 @@
 
                 <Region VBox.vgrow="ALWAYS" />
 
+                <Button fx:id="btnGuardar" contentDisplay="LEFT" graphicTextGap="8.0" maxWidth="Infinity" onAction="#guardar" styleClass="btn, btn-primary" text="Guardar">
                 <Button fx:id="btnGuardar" onAction="#guardarProveedor" contentDisplay="LEFT" graphicTextGap="8.0" maxWidth="Infinity" styleClass="btn, btn-primary" text="Guardar">
                     <graphic>
                         <SVGPath content="M2.5 2.5h8l3 3v8h-11z M5 2.5v4h5v-4 M5 13.5v-4h6v4" styleClass="icon, icon-white" />
                     </graphic>
                 </Button>
 
+                <Button fx:id="btnEliminar" contentDisplay="LEFT" graphicTextGap="8.0" maxWidth="Infinity" onAction="#eliminar" styleClass="btn, btn-danger" text="Eliminar seleccionado">
                 <Button fx:id="btnEliminar" onAction="#eliminarProveedor" contentDisplay="LEFT" graphicTextGap="8.0" maxWidth="Infinity" styleClass="btn, btn-danger" text="Eliminar seleccionado">
                     <graphic>
                         <SVGPath content="M2.5 4h11 M6 4V2.2h4V4 M4 4l0.8 10h6.4L12 4 M6.6 6.5v5 M9.4 6.5v5" styleClass="icon, icon-danger" />
@@ -89,13 +92,13 @@
                         <columns>
                             <TableColumn fx:id="colIdProveedor" maxWidth="120.0" minWidth="70.0" prefWidth="90.0" text="IDPROVEEDOR">
                                 <cellValueFactory>
-                                    <PropertyValueFactory property="idproveedor" />
+                                    <PropertyValueFactory property="id" />
                                 </cellValueFactory>
                             </TableColumn>
 
                             <TableColumn fx:id="colNombreProveedor" minWidth="180.0" prefWidth="220.0" style="-fx-font-weight: bold;" text="NOMBRE">
                                 <cellValueFactory>
-                                    <PropertyValueFactory property="nombreproveedor" />
+                                    <PropertyValueFactory property="nombre" />
                                 </cellValueFactory>
                             </TableColumn>
 
