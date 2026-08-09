@@ -87,20 +87,60 @@ public class ProductoDao {
      * Edicion COMPLETA. Llama a p_editar_producto_completo(idproducto, nombre,
      * marca, precio, imagen_url, cantidad, caducidad, idproveedor). Fija cantidad
      * y caducidad con el valor exacto (no suma) y permite cambiar el proveedor.
+     *
+     * Como se invoca un PROCEDURE con CALL, el getUpdateCount() de pgjdbc no
+     * refleja de forma fiable las filas que toco el UPDATE interno del procedure
+     * (suele devolver -1). Para no "asumir exito" se vuelve a consultar la fila y
+     * se confirma que quedo con los valores clave que se enviaron; el resultado
+     * (numero de filas que coinciden) le sirve al controlador para saber si el
+     * cambio se aplico de verdad.
+     *
+     * @return numero de filas que quedaron con los datos esperados (0 = no se
+     *         aplico el cambio).
      */
-    public void editarCompleto(Producto producto) throws SQLException {
-        String sql = "CALL p_editar_producto_completo(?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conexion = ConexionBD.obtenerConexion();
-                CallableStatement statement = conexion.prepareCall(sql)) {
-            statement.setInt(1, producto.getIdproducto());
-            statement.setString(2, producto.getNombreproducto());
-            statement.setString(3, producto.getMarca());
-            statement.setBigDecimal(4, producto.getPrecio());
-            statement.setString(5, producto.getImagenUrl());
-            statement.setInt(6, producto.getCantidad());
-            statement.setDate(7, Date.valueOf(producto.getCaducidad()));
-            statement.setInt(8, producto.getIdproveedor());
-            statement.execute();
+    public int editarCompleto(Producto producto) throws SQLException {
+        String sqlCall = "CALL p_editar_producto_completo(?, ?, ?, ?, ?, ?, ?, ?)";
+        String sqlVerif = "SELECT COUNT(*) FROM producto "
+                + "WHERE idproducto = ? AND nombreproducto = ? AND marca = ? "
+                + "AND cantidad = ? AND idproveedor = ?";
+
+        Connection conexion = null;
+        try {
+            conexion = ConexionBD.obtenerConexion();
+
+            try (CallableStatement statement = conexion.prepareCall(sqlCall)) {
+                statement.setInt(1, producto.getIdproducto());
+                statement.setString(2, producto.getNombreproducto());
+                statement.setString(3, producto.getMarca());
+                statement.setBigDecimal(4, producto.getPrecio());
+                statement.setString(5, producto.getImagenUrl());
+                statement.setInt(6, producto.getCantidad());
+                statement.setDate(7, Date.valueOf(producto.getCaducidad()));
+                statement.setInt(8, producto.getIdproveedor());
+                statement.execute();
+            }
+
+            // Si la conexion no hace autocommit, se confirma la transaccion de
+            // forma explicita para que el cambio quede persistido.
+            if (!conexion.getAutoCommit()) {
+                conexion.commit();
+            }
+
+            // Verificacion real del cambio contra la base de datos.
+            try (PreparedStatement verif = conexion.prepareStatement(sqlVerif)) {
+                verif.setInt(1, producto.getIdproducto());
+                verif.setString(2, producto.getNombreproducto());
+                verif.setString(3, producto.getMarca());
+                verif.setInt(4, producto.getCantidad());
+                verif.setInt(5, producto.getIdproveedor());
+                try (ResultSet resultado = verif.executeQuery()) {
+                    return resultado.next() ? resultado.getInt(1) : 0;
+                }
+            }
+        } finally {
+            if (conexion != null) {
+                conexion.close();
+            }
         }
     }
 
