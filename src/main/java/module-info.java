@@ -6,9 +6,9 @@ module michelle.zacarrotes {
     requires org.postgresql.jdbc;
     
     opens michelle.zacarrotes to javafx.fxml;
+    opens michelle.zacarrotes.controlador to javafx.fxml;
     exports michelle.zacarrotes;
-    
-    opens com.mycompany.controllercliente to javafx.fxml;
-    exports com.mycompany.controllercliente;
-    exports com.mycompany.modelocliente;
+    exports michelle.zacarrotes.controlador;
+    exports michelle.zacarrotes.modelo;
+    exports michelle.zacarrotes.dao;
 }
