@@ -17,11 +17,11 @@ import java.util.List;
  * @author CORDOVA
  */
 public class ClienteDao {
-    private Connection con = new ConexionBD().conectar();
+    private Connection conexion = new ConexionBD().conectar();
     
     public void insertar(Cliente cliente){
        try{
-            CallableStatement cs = con.prepareCall("CALL p_insertar_cliente(?)");
+            CallableStatement cs = conexion.prepareCall("CALL p_insertar_cliente(?)");
             cs.setString(1, cliente.getNombre());
             cs.execute();
             System.out.println("¡Cliente guardado con éxito!");
@@ -33,7 +33,7 @@ public class ClienteDao {
    public List<Cliente> listarClientes() {
         List<Cliente> lista = new ArrayList<>();
         try {
-            PreparedStatement ps = con.prepareStatement("SELECT * FROM cliente");
+            PreparedStatement ps = conexion.prepareStatement("SELECT * FROM cliente");
             ResultSet rs = ps.executeQuery();
             
             while (rs.next()) {
@@ -47,7 +47,7 @@ public class ClienteDao {
     
     public void editar(Cliente cliente) {
         try {
-            CallableStatement cs = con.prepareCall("{CALL p_editar_cliente(?, ?)}");
+            CallableStatement cs = conexion.prepareCall("{CALL p_editar_cliente(?, ?)}");
             cs.setInt(1, cliente.getIdCliente());
             cs.setString(2, cliente.getNombre());
             cs.execute();
@@ -58,7 +58,7 @@ public class ClienteDao {
     
     public void eliminar(int idCliente) {
         try {
-            PreparedStatement ps = con.prepareStatement("DELETE FROM cliente WHERE idcliente = ?");
+            PreparedStatement ps = conexion.prepareStatement("DELETE FROM cliente WHERE idcliente = ?");
             ps.setInt(1, idCliente);
             ps.executeUpdate();
         } catch (Exception e) {

@@ -12,3 +12,6 @@ nbactions.local.xml
 /nbproject/private/
 /.idea/
 *.iml
+
+#scritp de la base 
+PuntoDeVentaRosi.txt
