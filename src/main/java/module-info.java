@@ -3,6 +3,8 @@ module michelle.zacarrotes {
     requires javafx.fxml;
     requires java.sql;
 
+    requires org.postgresql.jdbc;
+    
     opens michelle.zacarrotes to javafx.fxml;
     opens michelle.zacarrotes.controlador to javafx.fxml;
     exports michelle.zacarrotes;
