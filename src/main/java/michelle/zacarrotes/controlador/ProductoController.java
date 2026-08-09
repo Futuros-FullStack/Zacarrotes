@@ -10,6 +10,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.function.UnaryOperator;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -30,6 +31,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
@@ -73,6 +75,12 @@ public class ProductoController implements Initializable {
 
     private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
+    // Expresiones regulares para el filtrado en tiempo real (TextFormatter) y la
+    // validacion final del alta. \p{L} cubre letras Unicode (tildes, ñ).
+    private static final String REGEX_LETRAS = "[\\p{L} ]*";           // solo letras y espacios
+    private static final String REGEX_PRECIO = "\\d*\\.?\\d*";          // digitos y como maximo un punto
+    private static final String REGEX_ENTERO = "\\d*";                  // solo digitos
+
     private final ProductoDao productoDAO = new ProductoDao();
     private final ProveedorDao proveedorDAO = new ProveedorDao();
     private final ObservableList<Producto> listaProductos = FXCollections.observableArrayList();
@@ -90,6 +98,7 @@ public class ProductoController implements Initializable {
         configurarColumnas();
         configurarMenuImagen();
         configurarDeseleccion();
+        configurarValidacionCampos();
 
         tblProductos.setItems(listaProductos);
         tblProductos.getSelectionModel().selectedItemProperty().addListener((obs, anterior, seleccionado) -> {
@@ -260,6 +269,42 @@ public class ProductoController implements Initializable {
         return false;
     }
 
+    /**
+     * Filtrado en tiempo real de los campos del formulario mediante TextFormatter.
+     * Cada campo rechaza el caracter invalido en el momento de teclearlo (no solo
+     * al guardar):
+     *   - Nombre y Marca: solo letras (incluyendo tildes/ñ) y espacios.
+     *   - Precio: digitos y como maximo un punto decimal.
+     *   - Cantidad: solo digitos (enteros).
+     *
+     * El filtrado SOLO restringe en modo alta (sin producto seleccionado). En
+     * modo edicion se deja pasar cualquier cambio para no corromper los datos ya
+     * guardados: los nombres reales pueden contener numeros o unidades ("Leche
+     * 1 L"), y {@code setText} durante la carga del formulario tambien pasa por
+     * este filtro. La confirmacion y la validacion final por Alert tambien son
+     * exclusivas del alta (ver {@link #insertar()}).
+     */
+    private void configurarValidacionCampos() {
+        txtNombre.setTextFormatter(new TextFormatter<>(filtroPorRegex(REGEX_LETRAS)));
+        txtMarca.setTextFormatter(new TextFormatter<>(filtroPorRegex(REGEX_LETRAS)));
+        txtPrecio.setTextFormatter(new TextFormatter<>(filtroPorRegex(REGEX_PRECIO)));
+        txtCantidad.setTextFormatter(new TextFormatter<>(filtroPorRegex(REGEX_ENTERO)));
+    }
+
+    /**
+     * @return un filtro de TextFormatter que, solo en modo alta (sin producto
+     *         seleccionado), acepta el cambio unicamente si el texto resultante
+     *         completo cumple la expresion regular. En modo edicion no filtra.
+     */
+    private UnaryOperator<TextFormatter.Change> filtroPorRegex(String regex) {
+        return cambio -> {
+            if (productoSeleccionado != null) {
+                return cambio; // Modo edicion: no se restringe.
+            }
+            return cambio.getControlNewText().matches(regex) ? cambio : null;
+        };
+    }
+
     // ================= Carga de datos =================
 
     private void cargarProveedores() {
@@ -352,15 +397,30 @@ public class ProductoController implements Initializable {
     private void insertar() {
         String nombre = valorTrim(txtNombre);
         String marca = valorTrim(txtMarca);
-        if (nombre.isEmpty() || marca.isEmpty()) {
-            alerta(Alert.AlertType.WARNING, "Validación", "Nombre y marca son obligatorios.");
+
+        // Confirmacion previa: solo en el alta, antes de validar y tocar la base
+        // de datos. Si el usuario elige "Cancelar" no se ejecuta nada y el
+        // formulario se queda tal cual.
+        if (!confirmarGuardado(nombre)) {
             return;
         }
-        BigDecimal precio = parsearPrecio();
+
+        // Validacion final (por si el campo quedo vacio pese al filtrado en vivo).
+        // El TextFormatter ya impide teclear caracteres invalidos, asi que aqui
+        // basta con exigir contenido con el formato correcto y mensajes claros.
+        if (nombre.isEmpty() || !nombre.matches(REGEX_LETRAS)) {
+            alerta(Alert.AlertType.ERROR, "Validación", "El nombre solo acepta letras.");
+            return;
+        }
+        if (marca.isEmpty() || !marca.matches(REGEX_LETRAS)) {
+            alerta(Alert.AlertType.ERROR, "Validación", "La marca solo acepta letras.");
+            return;
+        }
+        BigDecimal precio = validarPrecioInsert();
         if (precio == null) {
             return;
         }
-        Integer cantidad = parsearCantidad(true);
+        Integer cantidad = validarCantidadInsert();
         if (cantidad == null) {
             return;
         }
@@ -475,6 +535,27 @@ public class ProductoController implements Initializable {
         return resultado.isPresent() && resultado.get() == btnSi;
     }
 
+    /**
+     * Alert de confirmacion para el alta de un producto nuevo. Botones
+     * personalizados "Sí" y "Cancelar".
+     *
+     * @return true solo si el usuario presiono "Sí"; false si cancelo o cerro
+     *         el dialogo.
+     */
+    private boolean confirmarGuardado(String nombre) {
+        ButtonType btnSi = new ButtonType("Sí", ButtonBar.ButtonData.YES);
+        ButtonType btnCancelar = new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Confirmar guardado");
+        confirmacion.setHeaderText(null);
+        confirmacion.setContentText("¿Desea guardar el producto '" + nombre + "'?");
+        confirmacion.getButtonTypes().setAll(btnSi, btnCancelar);
+
+        Optional<ButtonType> resultado = confirmacion.showAndWait();
+        return resultado.isPresent() && resultado.get() == btnSi;
+    }
+
     @FXML
     private void eliminar() {
         if (productoSeleccionado == null) {
@@ -569,6 +650,45 @@ public class ProductoController implements Initializable {
             return cantidad;
         } catch (NumberFormatException e) {
             alerta(Alert.AlertType.WARNING, "Validación", "La cantidad debe ser un número entero.");
+            return null;
+        }
+    }
+
+    /**
+     * Validacion final del precio para el alta. El TextFormatter ya garantiza que
+     * solo haya digitos y un punto; aqui se rechaza el vacio o un resto que no
+     * pueda parsearse (p.ej. solo un punto ".").
+     *
+     * @return el precio, o null si hubo error (mostrando el Alert correspondiente).
+     */
+    private BigDecimal validarPrecioInsert() {
+        String texto = valorTrim(txtPrecio);
+        try {
+            if (texto.isEmpty()) {
+                throw new NumberFormatException("vacío");
+            }
+            return new BigDecimal(texto);
+        } catch (NumberFormatException e) {
+            alerta(Alert.AlertType.ERROR, "Validación", "El precio solo acepta números y un punto decimal.");
+            return null;
+        }
+    }
+
+    /**
+     * Validacion final de la cantidad para el alta. El TextFormatter ya garantiza
+     * que solo haya digitos; aqui se rechaza el vacio.
+     *
+     * @return la cantidad, o null si hubo error (mostrando el Alert correspondiente).
+     */
+    private Integer validarCantidadInsert() {
+        String texto = valorTrim(txtCantidad);
+        try {
+            if (texto.isEmpty()) {
+                throw new NumberFormatException("vacío");
+            }
+            return Integer.parseInt(texto);
+        } catch (NumberFormatException e) {
+            alerta(Alert.AlertType.ERROR, "Validación", "La cantidad solo acepta números enteros.");
             return null;
         }
     }
