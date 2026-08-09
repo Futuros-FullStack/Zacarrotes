@@ -37,6 +37,40 @@
 }
 
 /* ---------------------------------------------------------
+   Menu contextual del preview de imagen (clic izquierdo).
+   Combina con el dark mode del resto de la app: mismo fondo
+   de tarjeta, borde tenue y verde de acento al pasar el mouse.
+   --------------------------------------------------------- */
+.menu-imagen {
+    -fx-background-color: -color-card;
+    -fx-background-radius: 8;
+    -fx-border-color: -color-border;
+    -fx-border-radius: 8;
+    -fx-padding: 4;
+}
+
+.menu-imagen .menu-item {
+    -fx-background-color: transparent;
+    -fx-background-radius: 6;
+    -fx-padding: 7 14 7 12;
+}
+
+.menu-imagen .menu-item .label {
+    -fx-text-fill: -color-text;
+    -fx-font-size: 12px;
+}
+
+.menu-imagen .menu-item:focused,
+.menu-imagen .menu-item:hover {
+    -fx-background-color: #24301d;
+}
+
+.menu-imagen .menu-item:focused .label,
+.menu-imagen .menu-item:hover .label {
+    -fx-text-fill: -color-green;
+}
+
+/* ---------------------------------------------------------
    Miniatura del producto (columna colIcono).
    Se aplica al StackPane que envuelve al ImageView.
 

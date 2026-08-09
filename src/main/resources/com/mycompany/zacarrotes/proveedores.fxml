@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane styleClass="root-bg" stylesheets="@proveedores.css" xmlns="http://javafx.com/javafx/13" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.zacarrotes.ProveedoresController">
+
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="24.0" styleClass="top-bar">
+            <padding>
+                <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+            </padding>
+            <children>
+                <!-- Marca -->
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <children>
+                        <VBox alignment="CENTER_LEFT" spacing="0.0">
+                            <children>
+                                <Label styleClass="brand-title" text="Zacarrotes" />
+                                <Label styleClass="brand-subtitle" text="Caja 1" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <!-- Buscador -->
+                <HBox alignment="CENTER_LEFT" spacing="8.0" styleClass="search-box" HBox.hgrow="ALWAYS">
+                    <padding>
+                        <Insets bottom="6.0" left="12.0" right="12.0" top="6.0" />
+                    </padding>
+                    <children>
+                        <Label styleClass="search-icon" text="🔍" />
+                        <TextField styleClass="search-field" promptText="Buscar producto o marca" HBox.hgrow="ALWAYS" />
+                    </children>
+                </HBox>
+
+                <!-- Navegación -->
+                <HBox alignment="CENTER_LEFT" spacing="4.0" styleClass="nav-bar">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="6.0" styleClass="nav-item">
+                            <padding>
+                                <Insets bottom="8.0" left="14.0" right="14.0" top="8.0" />
+                            </padding>
+                            <children>
+                                <Label styleClass="nav-icon" text="🛒" />
+                                <Label styleClass="nav-label" text="Venta" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="6.0" styleClass="nav-item">
+                            <padding>
+                                <Insets bottom="8.0" left="14.0" right="14.0" top="8.0" />
+                            </padding>
+                            <children>
+                                <Label styleClass="nav-icon" text="📦" />
+                                <Label styleClass="nav-label" text="Productos" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="6.0" styleClass="nav-item">
+                            <padding>
+                                <Insets bottom="8.0" left="14.0" right="14.0" top="8.0" />
+                            </padding>
+                            <children>
+                                <Label styleClass="nav-icon" text="👥" />
+                                <Label styleClass="nav-label" text="Clientes" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="6.0" styleClass="nav-item-active">
+                            <padding>
+                                <Insets bottom="8.0" left="14.0" right="14.0" top="8.0" />
+                            </padding>
+                            <children>
+                                <Label styleClass="nav-icon" text="🚚" />
+                                <Label styleClass="nav-label-active" text="Proveedores" />
+                            </children>
+                        </HBox>
+                    </children>
+                </HBox>
+
+                <Region HBox.hgrow="ALWAYS" />
+            </children>
+        </HBox>
+    </top>
+
+    <left>
+        <VBox prefWidth="280.0" spacing="16.0" styleClass="left-panel" BorderPane.alignment="TOP_LEFT">
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="8.0">
+                    <children>
+                        <Label styleClass="title-icon" text="🏪" />
+                        <Label styleClass="panel-title" text="Datos del proveedor" />
+                    </children>
+                </HBox>
+
+                <VBox spacing="4.0">
+                    <children>
+                        <Label styleClass="field-label" text="Nombre" />
+                        <TextField fx:id="txtNombre" styleClass="text-input" promptText="Grupo Bimbo" />
+                    </children>
+                </VBox>
+
+                <VBox spacing="4.0">
+                    <children>
+                        <Label styleClass="field-label" text="Dirección" />
+                        <TextField fx:id="txtDireccion" styleClass="text-input" promptText="Calle Pino Suárez 45, Centro" />
+                    </children>
+                </VBox>
+
+                <VBox spacing="4.0">
+                    <children>
+                        <Label styleClass="field-label" text="Teléfono" />
+                        <TextField fx:id="txtTelefono" styleClass="text-input" promptText="2299113045" />
+                        <Label styleClass="help-text" text="10 dígitos, sin guiones ni espacios." wrapText="true" />
+                    </children>
+                </VBox>
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <VBox spacing="10.0">
+                    <children>
+                        <Button fx:id="btnGuardar" maxWidth="Infinity" onAction="#guardar" styleClass="btn-guardar" text="Guardar" />
+                        <Button fx:id="btnNuevo" maxWidth="Infinity" onAction="#nuevo" styleClass="btn-nuevo" text="Nuevo" />
+                        <Button fx:id="btnLimpiar" maxWidth="Infinity" onAction="#limpiar" styleClass="btn-limpiar" text="Limpiar" />
+                        <Button fx:id="btnEliminar" maxWidth="Infinity" onAction="#eliminar" styleClass="btn-eliminar" text="Eliminar seleccionado" />
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox styleClass="right-panel" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="16.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <children>
+                        <Label styleClass="section-title" text="Proveedores registrados" />
+                        <Label fx:id="lblConteo" styleClass="count-pill" text="0" />
+                    </children>
+                </HBox>
+
+                <TableView fx:id="tablaProveedores" styleClass="tabla-proveedores" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colId" prefWidth="60.0" text="ID" />
+                        <TableColumn fx:id="colNombre" prefWidth="200.0" text="Nombre" />
+                        <TableColumn fx:id="colDireccion" prefWidth="320.0" text="Dirección" />
+                        <TableColumn fx:id="colTelefono" prefWidth="140.0" text="Teléfono" />
+                    </columns>
+                    <VBox.margin>
+                        <Insets top="14.0" />
+                    </VBox.margin>
+                </TableView>
+
+                <HBox alignment="CENTER_LEFT" styleClass="status-bar">
+                    <padding>
+                        <Insets bottom="4.0" top="10.0" />
+                    </padding>
+                    <children>
+                        <Label fx:id="lblEstado" styleClass="status-ok" text="✓ Listo" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label styleClass="status-hint" text="Nombre y dirección son únicos." />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </center>
+
+</BorderPane>
