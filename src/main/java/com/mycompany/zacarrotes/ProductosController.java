@@ -16,6 +16,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
@@ -364,6 +365,13 @@ public class ProductosController implements Initializable {
             return;
         }
 
+        // Confirmacion previa: solo en modo edicion, antes de tocar la base de
+        // datos. Si el usuario elige "Cancelar" no se ejecuta nada, no se limpia
+        // el formulario y no se deselecciona la fila.
+        if (!confirmarModificacion(productoSeleccionado.getNombreproducto())) {
+            return;
+        }
+
         productoSeleccionado.setNombreproducto(nombre);
         productoSeleccionado.setMarca(marca);
         productoSeleccionado.setPrecio(precio);
@@ -374,14 +382,44 @@ public class ProductosController implements Initializable {
 
         try {
             // Edicion completa: fija nombre, marca, precio, imagen, cantidad,
-            // caducidad y proveedor en una sola llamada.
-            productoDAO.editarCompleto(productoSeleccionado);
+            // caducidad y proveedor en una sola llamada. El DAO devuelve cuantas
+            // filas quedaron con los datos esperados (verificacion real, no se
+            // asume exito).
+            int filasActualizadas = productoDAO.editarCompleto(productoSeleccionado);
+            if (filasActualizadas == 0) {
+                alerta(Alert.AlertType.ERROR, "Productos",
+                        "No se aplicó ningún cambio. El producto pudo haber sido "
+                        + "modificado o eliminado por otra persona. Vuelve a cargar "
+                        + "el catálogo e inténtalo de nuevo.");
+                return;
+            }
             cargarTabla();
             limpiar();
             alerta(Alert.AlertType.INFORMATION, "Productos", "Producto actualizado correctamente.");
         } catch (SQLException e) {
             alerta(Alert.AlertType.ERROR, "Productos", "No se pudo editar el producto.\n" + e.getMessage());
         }
+    }
+
+    /**
+     * Alert de confirmacion para la edicion. Botones personalizados "Sí" y
+     * "Cancelar".
+     *
+     * @return true solo si el usuario presiono "Sí"; false si cancelo o cerro
+     *         el dialogo.
+     */
+    private boolean confirmarModificacion(String nombre) {
+        ButtonType btnSi = new ButtonType("Sí", ButtonBar.ButtonData.YES);
+        ButtonType btnCancelar = new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Confirmar modificación");
+        confirmacion.setHeaderText(null);
+        confirmacion.setContentText("¿Desea modificar el producto '" + nombre + "'?");
+        confirmacion.getButtonTypes().setAll(btnSi, btnCancelar);
+
+        Optional<ButtonType> resultado = confirmacion.showAndWait();
+        return resultado.isPresent() && resultado.get() == btnSi;
     }
 
     @FXML
