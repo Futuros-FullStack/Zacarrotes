@@ -35,11 +35,11 @@
       - colCaducidad : pintar la fecha como Label .pill + .pill-ok/warn/danger
 -->
 
-<BorderPane fx:id="pnlRaiz" prefHeight="720.0" prefWidth="1150.0" stylesheets="@../../estilos/general.css, @../../estilos/productos.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.zacarrotes.ProductosController">
+<BorderPane fx:id="pnlRaiz" prefHeight="720.0" prefWidth="1150.0" stylesheets="@../estilos/general.css, @../estilos/productos.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="michelle.zacarrotes.controlador.ProductoController">
 
     <!-- ================= BARRA SUPERIOR (componente comun) ================= -->
     <top>
-        <fx:include fx:id="navbar" source="../comunes/navbar.fxml" />
+        <fx:include fx:id="navbar" source="comunes/navbar.fxml" />
     </top>
 
     <!-- ================= CONTENIDO ================= -->

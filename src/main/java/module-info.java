@@ -6,10 +6,9 @@ module michelle.zacarrotes {
 
     opens michelle.zacarrotes to javafx.fxml;
     opens michelle.zacarrotes.controlador to javafx.fxml;
-    exports michelle.zacarrotes;
+    opens michelle.zacarrotes.modelo to javafx.fxml;
 
-    opens com.mycompany.zacarrotes to javafx.fxml;
-    exports com.mycompany.zacarrotes;
+    exports michelle.zacarrotes;
     exports michelle.zacarrotes.controlador;
     exports michelle.zacarrotes.modelo;
     exports michelle.zacarrotes.dao;

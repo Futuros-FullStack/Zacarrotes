@@ -12,10 +12,10 @@ import java.io.IOException;
 
 public class App extends Application {
 
-    public static final String VISTA_VENTA       = "/vistas/disenos/venta.fxml";
-    public static final String VISTA_PRODUCTOS   = "/vistas/disenos/productos.fxml";
-    public static final String VISTA_CLIENTES    = "/vistas/disenos/clientes.fxml";
-    public static final String VISTA_PROVEEDORES = "/vistas/disenos/proveedores.fxml";
+    public static final String VISTA_VENTA       = "/vistas/venta.fxml";
+    public static final String VISTA_PRODUCTOS   = "/vistas/productos.fxml";
+    public static final String VISTA_CLIENTES    = "/vistas/clientes.fxml";
+    public static final String VISTA_PROVEEDORES = "/vistas/proveedores.fxml";
 
     private static Scene scene;
 
