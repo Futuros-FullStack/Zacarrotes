@@ -15,7 +15,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
@@ -31,6 +33,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.util.StringConverter;
 
@@ -44,6 +47,7 @@ import javafx.util.StringConverter;
  */
 public class ProductosController implements Initializable {
 
+    @FXML private BorderPane pnlRaiz;
     @FXML private ImageView imgPreview;
     @FXML private TextField txtNombre;
     @FXML private TextField txtMarca;
@@ -81,6 +85,7 @@ public class ProductosController implements Initializable {
         configurarComboProveedores();
         configurarColumnas();
         configurarMenuImagen();
+        configurarDeseleccion();
 
         tblProductos.setItems(listaProductos);
         tblProductos.getSelectionModel().selectedItemProperty().addListener((obs, anterior, seleccionado) -> {
@@ -202,6 +207,53 @@ public class ProductosController implements Initializable {
             imgPreview.setImage(null);
             imagenUrlSeleccionada = null;
         }
+    }
+
+    /**
+     * Clic "fuera de la tabla": al pulsar en cualquier zona de la vista que no
+     * sea una fila de la tabla ni un control de entrada (formulario en blanco,
+     * areas vacias, etiquetas...), se deselecciona la fila y el formulario
+     * vuelve a modo "nuevo producto" reutilizando {@link #limpiar()}.
+     *
+     * El manejador va en el panel raiz y los eventos de los hijos llegan por
+     * propagacion. Para no estorbar el uso normal, {@link #conservaSeleccion}
+     * ignora los clics sobre TextField, DatePicker, ComboBox, Button, la tabla
+     * y el preview de imagen (que ya tiene su propio menu contextual).
+     *
+     * Solo se limpia cuando hay un producto seleccionado (modo edicion); asi un
+     * clic en un area vacia no borra un alta que el usuario este capturando.
+     */
+    private void configurarDeseleccion() {
+        pnlRaiz.setOnMouseClicked(e -> {
+            if (conservaSeleccion(e.getTarget())) {
+                return;
+            }
+            if (productoSeleccionado != null) {
+                limpiar();
+            }
+        });
+    }
+
+    /**
+     * @return true si el nodo pulsado (o alguno de sus ancestros) es un control
+     *         con el que el usuario debe poder interactuar sin perder la
+     *         seleccion: la tabla, los campos del formulario, los botones o el
+     *         preview de imagen.
+     */
+    private boolean conservaSeleccion(Object destino) {
+        Node nodo = (destino instanceof Node) ? (Node) destino : null;
+        while (nodo != null) {
+            if (nodo instanceof TableView
+                    || nodo instanceof TextField
+                    || nodo instanceof DatePicker
+                    || nodo instanceof ComboBox
+                    || nodo instanceof Button
+                    || nodo instanceof ImageView) {
+                return true;
+            }
+            nodo = nodo.getParent();
+        }
+        return false;
     }
 
     // ================= Carga de datos =================
