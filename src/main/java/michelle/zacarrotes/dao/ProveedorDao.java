@@ -43,7 +43,7 @@ public class ProveedorDao {
         }
         catch(Exception e)
         {
-            System.err.println("Error al insertar proveedor en puntoventarosi: " + e.getMessage());
+            System.err.println("Error al insertar proveedor: " + e.getMessage());
             return false;
         }
     }

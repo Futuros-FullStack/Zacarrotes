@@ -30,10 +30,10 @@
         una fila y sirve para saber si btnGuardar inserta o actualiza.
 -->
 
-<BorderPane fx:id="pnlRaiz" prefHeight="720.0" prefWidth="1150.0" stylesheets="@../../estilos/general.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.controllercliente.ClienteController">
+<BorderPane fx:id="pnlRaiz" prefHeight="720.0" prefWidth="1150.0" stylesheets="@../estilos/general.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="michelle.zacarrotes.controlador.ClienteController">
 
     <top>
-        <fx:include fx:id="navbar" source="../comunes/navbar.fxml" />
+        <fx:include fx:id="navbar" source="comunes/navbar.fxml" />
     </top>
 
     <center>

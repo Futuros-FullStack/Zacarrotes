@@ -1,4 +1,4 @@
-package com.mycompany.zacarrotes;
+package michelle.zacarrotes.modelo;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

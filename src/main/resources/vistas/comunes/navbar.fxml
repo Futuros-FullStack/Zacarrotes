@@ -14,7 +14,7 @@
 
     Como usarla en tu vista:
         <top>
-            <fx:include source="../comunes/navbar.fxml" />
+            <fx:include source="comunes/navbar.fxml" />
         </top>
 
     La navegacion la maneja NavbarController: cada boton llama a
@@ -25,7 +25,7 @@
     en una vista con otro CSS, y para poder abrirla sola en Scene Builder.
 -->
 
-<HBox fx:id="pnlBarraSuperior" alignment="CENTER_LEFT" prefWidth="1150.0" spacing="14.0" styleClass="topbar" stylesheets="@../../estilos/general.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="michelle.zacarrotes.NavbarController">
+<HBox fx:id="pnlBarraSuperior" alignment="CENTER_LEFT" prefWidth="1150.0" spacing="14.0" styleClass="topbar" stylesheets="@../../estilos/general.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="michelle.zacarrotes.controlador.NavbarController">
     <padding>
         <Insets bottom="10.0" left="16.0" right="16.0" top="10.0" />
     </padding>

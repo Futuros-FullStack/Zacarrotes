@@ -1,6 +1,5 @@
-package com.mycompany.zacarrotes;
+package michelle.zacarrotes.dao;
 
-import conexion.Conexion;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Date;
@@ -10,6 +9,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import michelle.zacarrotes.modelo.Producto;
 
 /**
  * DAO de productos. Los procedures ya existen en PostgreSQL; aqui solo se
@@ -17,7 +17,7 @@ import java.util.List;
  * porque en PostgreSQL los PROCEDURE se llaman con la sentencia CALL, y esa
  * forma es la que interpreta de forma fiable el driver pgjdbc.
  */
-public class ProductoDAO {
+public class ProductoDao {
 
     /** Lista el catalogo con el nombre del proveedor usando la vista. */
     public List<Producto> listarTodos() throws SQLException {
@@ -25,7 +25,7 @@ public class ProductoDAO {
                 + "cantidad, imagen_url, proveedor, tel_proveedor "
                 + "FROM v_catalogo_completo ORDER BY producto";
         List<Producto> productos = new ArrayList<>();
-        try (Connection conexion = Conexion.obtenerConexion();
+        try (Connection conexion = ConexionBD.obtenerConexion();
                 PreparedStatement statement = conexion.prepareStatement(sql);
                 ResultSet resultado = statement.executeQuery()) {
             while (resultado.next()) {
@@ -52,7 +52,7 @@ public class ProductoDAO {
      */
     public void insertar(Producto producto) throws SQLException {
         String sql = "CALL p_insertar_producto(?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conexion = Conexion.obtenerConexion();
+        try (Connection conexion = ConexionBD.obtenerConexion();
                 CallableStatement statement = conexion.prepareCall(sql)) {
             statement.setString(1, producto.getNombreproducto());
             statement.setString(2, producto.getMarca());
@@ -72,7 +72,7 @@ public class ProductoDAO {
      */
     public void editar(Producto producto) throws SQLException {
         String sql = "CALL p_editar_producto(?, ?, ?, ?, ?)";
-        try (Connection conexion = Conexion.obtenerConexion();
+        try (Connection conexion = ConexionBD.obtenerConexion();
                 CallableStatement statement = conexion.prepareCall(sql)) {
             statement.setInt(1, producto.getIdproducto());
             statement.setString(2, producto.getNombreproducto());
@@ -90,7 +90,7 @@ public class ProductoDAO {
      */
     public void editarCompleto(Producto producto) throws SQLException {
         String sql = "CALL p_editar_producto_completo(?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conexion = Conexion.obtenerConexion();
+        try (Connection conexion = ConexionBD.obtenerConexion();
                 CallableStatement statement = conexion.prepareCall(sql)) {
             statement.setInt(1, producto.getIdproducto());
             statement.setString(2, producto.getNombreproducto());
@@ -111,7 +111,7 @@ public class ProductoDAO {
      */
     public void abastecer(int idProducto, int cantidadAgregada, LocalDate nuevaCaducidad) throws SQLException {
         String sql = "CALL p_abastecer(?, ?, ?)";
-        try (Connection conexion = Conexion.obtenerConexion();
+        try (Connection conexion = ConexionBD.obtenerConexion();
                 CallableStatement statement = conexion.prepareCall(sql)) {
             statement.setInt(1, idProducto);
             statement.setInt(2, cantidadAgregada);
@@ -128,7 +128,7 @@ public class ProductoDAO {
      */
     public void eliminar(int idProducto) throws SQLException {
         String sql = "DELETE FROM producto WHERE idproducto = ?";
-        try (Connection conexion = Conexion.obtenerConexion();
+        try (Connection conexion = ConexionBD.obtenerConexion();
                 PreparedStatement statement = conexion.prepareStatement(sql)) {
             statement.setInt(1, idProducto);
             statement.executeUpdate();

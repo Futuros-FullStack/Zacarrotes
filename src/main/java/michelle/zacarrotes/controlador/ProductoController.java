@@ -1,4 +1,4 @@
-package com.mycompany.zacarrotes;
+package michelle.zacarrotes.controlador;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -32,6 +32,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.stage.FileChooser;
 import javafx.util.StringConverter;
+import michelle.zacarrotes.dao.ProductoDao;
+import michelle.zacarrotes.dao.ProveedorDao;
+import michelle.zacarrotes.modelo.Producto;
+import michelle.zacarrotes.modelo.Proveedor;
 
 /**
  * Controlador de la vista de Productos (productos.fxml).
@@ -41,7 +45,7 @@ import javafx.util.StringConverter;
  * p_editar_producto_completo (nombre, marca, precio, imagen, cantidad, caducidad
  * y proveedor, con semantica de "fijar" el valor, no sumar).
  */
-public class ProductosController implements Initializable {
+public class ProductoController implements Initializable {
 
     @FXML private ImageView imgPreview;
     @FXML private TextField txtNombre;
@@ -64,8 +68,8 @@ public class ProductosController implements Initializable {
 
     private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    private final ProductoDAO productoDAO = new ProductoDAO();
-    private final ProveedorDAO proveedorDAO = new ProveedorDAO();
+    private final ProductoDao productoDAO = new ProductoDao();
+    private final ProveedorDao proveedorDAO = new ProveedorDao();
     private final ObservableList<Producto> listaProductos = FXCollections.observableArrayList();
 
     private Producto productoSeleccionado;
@@ -98,7 +102,7 @@ public class ProductosController implements Initializable {
         cboProveedor.setConverter(new StringConverter<Proveedor>() {
             @Override
             public String toString(Proveedor proveedor) {
-                return proveedor == null ? "" : proveedor.getNombre();
+                return proveedor == null ? "" : proveedor.getNombreProveedor();
             }
 
             @Override
@@ -110,7 +114,7 @@ public class ProductosController implements Initializable {
             @Override
             protected void updateItem(Proveedor item, boolean empty) {
                 super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.getNombre());
+                setText(empty || item == null ? null : item.getNombreProveedor());
             }
         });
     }
@@ -207,11 +211,8 @@ public class ProductosController implements Initializable {
 
     private void cargarProveedores() {
         try {
-            List<Proveedor> proveedores = proveedorDAO.listarParaCombo();
+            List<Proveedor> proveedores = proveedorDAO.ListarTodos();
             cboProveedor.setItems(FXCollections.observableArrayList(proveedores));
-        } catch (SQLException e) {
-            alerta(Alert.AlertType.ERROR, "Proveedores",
-                    "No se pudieron cargar los proveedores.\n" + e.getMessage());
         } catch (RuntimeException e) {
             // p.ej. falta una variable de entorno de la conexion.
             alerta(Alert.AlertType.ERROR, "Conexión", e.getMessage());
@@ -248,7 +249,7 @@ public class ProductosController implements Initializable {
     private void seleccionarProveedorPorNombre(String nombre) {
         if (nombre != null) {
             for (Proveedor proveedor : cboProveedor.getItems()) {
-                if (nombre.equals(proveedor.getNombre())) {
+                if (nombre.equals(proveedor.getNombreProveedor())) {
                     cboProveedor.getSelectionModel().select(proveedor);
                     return;
                 }
@@ -327,7 +328,7 @@ public class ProductosController implements Initializable {
         nuevo.setCantidad(cantidad);
         nuevo.setCaducidad(caducidad);
         nuevo.setImagenUrl(imagenUrlSeleccionada);
-        nuevo.setIdproveedor(proveedor.getId());
+        nuevo.setIdproveedor(proveedor.getIdProveedor());
 
         try {
             productoDAO.insertar(nuevo);
@@ -370,7 +371,7 @@ public class ProductosController implements Initializable {
         productoSeleccionado.setImagenUrl(imagenUrlSeleccionada);
         productoSeleccionado.setCantidad(cantidad);
         productoSeleccionado.setCaducidad(caducidad);
-        productoSeleccionado.setIdproveedor(proveedor.getId());
+        productoSeleccionado.setIdproveedor(proveedor.getIdProveedor());
 
         try {
             // Edicion completa: fija nombre, marca, precio, imagen, cantidad,

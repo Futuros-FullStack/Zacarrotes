@@ -1,6 +1,7 @@
-package michelle.zacarrotes;
+package michelle.zacarrotes.controlador;
 
 import javafx.fxml.FXML;
+import michelle.zacarrotes.App;
 
 public class NavbarController {
 
