@@ -30,7 +30,7 @@
     (subtotal = precio * cantidad; venta.total es la suma de los subtotales).
 -->
 
-<BorderPane fx:id="pnlRaiz" prefHeight="720.0" prefWidth="1150.0" stylesheets="@../estilos/general.css, @../estilos/venta.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane fx:id="pnlRaiz" prefHeight="720.0" prefWidth="1150.0" stylesheets="@../estilos/general.css, @../estilos/venta.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="michelle.zacarrotes.controlador.VentaController">
 
     <top>
         <fx:include fx:id="navbar" source="comunes/navbar.fxml" />

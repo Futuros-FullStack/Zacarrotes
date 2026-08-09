@@ -32,7 +32,7 @@
     igual que navbar.fxml.
 -->
 
-<VBox fx:id="pnlTarjeta" prefWidth="168.0" spacing="6.0" styleClass="producto-card" stylesheets="@../../estilos/general.css, @../../estilos/venta.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
+<VBox fx:id="pnlTarjeta" prefWidth="168.0" spacing="6.0" styleClass="producto-card" stylesheets="@../../estilos/general.css, @../../estilos/venta.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="michelle.zacarrotes.controlador.TarjetaProductoController">
 
     <StackPane fx:id="pnlFoto" styleClass="card-img">
         <ImageView fx:id="imgFoto" fitHeight="88.0" fitWidth="88.0" preserveRatio="true" />
