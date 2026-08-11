@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.SVGPath?>
+
+<!--
+    Vista de Historial de ventas - Zacarrotes
+
+    A la izquierda las ventas ya registradas; a la derecha el ticket de la
+    venta seleccionada, con las acciones para corregirlo.
+
+    Cada control invoca un procedure de la base a traves de VentaDao:
+
+        tabla de ventas     -> listarVentas()     (vista v_ticket)
+        detalle del ticket  -> listarTicket()     (vista v_ticket)
+        btnCambiarCantidad  -> editarVenta()      (p_editar_venta)
+        btnQuitarProducto   -> quitarProducto()   (p_quitar_producto_venta)
+        btnEliminarVenta    -> eliminarVenta()    (p_eliminar_venta)
+
+    Las dos tablas son REALES sobre venta y detalleventa; no hay carrito en
+    memoria. Despues de cada operacion el controlador vuelve a consultar la
+    base y repinta, asi que lo que se ve es lo que quedo grabado.
+
+    Modelos esperados:
+        Venta        -> idVenta, fecha, nombreCliente, total
+        DetalleVenta -> nombreproducto, marca, cantidad, subtotal
+-->
+
+<BorderPane fx:id="pnlRaiz" prefHeight="720.0" prefWidth="1150.0" stylesheets="@../estilos/general.css, @../estilos/historial.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="michelle.zacarrotes.controlador.HistorialController">
+
+    <top>
+        <fx:include fx:id="navbar" source="comunes/navbar.fxml" />
+    </top>
+
+    <center>
+        <HBox fx:id="boxCuerpo">
+
+            <!-- ============ Ventas registradas ============ -->
+            <VBox fx:id="pnlVentas" spacing="12.0" HBox.hgrow="ALWAYS">
+                <padding>
+                    <Insets bottom="18.0" left="18.0" right="18.0" top="16.0" />
+                </padding>
+
+                <HBox fx:id="boxTitulo" alignment="BOTTOM_LEFT" spacing="10.0">
+                    <Label fx:id="lblTitulo" styleClass="card-title" text="Ventas registradas" />
+                    <Label fx:id="lblConteoVentas" styleClass="badge-count" text="0" />
+                    <Region HBox.hgrow="ALWAYS" />
+                </HBox>
+
+                <VBox fx:id="pnlTablaVentas" styleClass="table-card" VBox.vgrow="ALWAYS">
+                    <TableView fx:id="tblVentas" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="colVentaFolio" maxWidth="153.5999747991562" minWidth="60.0" prefWidth="118.39998548030854" text="FOLIO">
+                                <cellValueFactory>
+                                    <PropertyValueFactory property="idVenta" />
+                                </cellValueFactory>
+                            </TableColumn>
+
+                            <TableColumn fx:id="colVentaFecha" minWidth="76.800048828125" prefWidth="184.80005645751953" text="FECHA">
+                                <cellValueFactory>
+                                    <PropertyValueFactory property="fecha" />
+                                </cellValueFactory>
+                            </TableColumn>
+
+                            <TableColumn fx:id="colVentaCliente" minWidth="110.0" prefWidth="307.1999206542969" text="CLIENTE">
+                                <cellValueFactory>
+                                    <PropertyValueFactory property="nombreCliente" />
+                                </cellValueFactory>
+                            </TableColumn>
+
+                            <TableColumn fx:id="colVentaTotal" minWidth="3.99993896484375" prefWidth="72.800048828125" style="-fx-alignment: CENTER-RIGHT;" text="    TOTAL">
+                                <cellValueFactory>
+                                    <PropertyValueFactory property="total" />
+                                </cellValueFactory>
+                            </TableColumn>
+                        </columns>
+
+                        <placeholder>
+                            <VBox fx:id="boxSinVentas" alignment="CENTER" prefHeight="554.0" prefWidth="664.0" spacing="10.0">
+                                <SVGPath content="M8 1.5a6.5 6.5 0 1 0 0.01 0 Z M8 4.6V8.2l2.6 1.6" styleClass="icon, icon-historial-vacio" />
+                                <Region prefHeight="14.0" />
+                                <Label styleClass="tabla-vacia" text="Todavía no hay ventas registradas." />
+                                <Label styleClass="tabla-vacia" text="Cobra un ticket en la pestaña Venta." />
+                            </VBox>
+                        </placeholder>
+                    </TableView>
+                </VBox>
+            </VBox>
+
+            <!-- ============ Ticket de la venta seleccionada ============ -->
+            <VBox fx:id="pnlDetalle" minWidth="330.0" prefWidth="330.0" spacing="14.0" styleClass="detalle-panel">
+                <padding>
+                    <Insets bottom="18.0" left="18.0" right="18.0" top="16.0" />
+                </padding>
+
+                <HBox fx:id="boxTituloDetalle" alignment="CENTER_LEFT" spacing="10.0">
+                    <Label styleClass="card-title" text="Ticket" />
+                </HBox>
+
+                <Label fx:id="lblClienteDetalle" styleClass="ticket-etiqueta" text="Selecciona una venta de la lista." />
+
+                <VBox fx:id="pnlTablaDetalle" styleClass="table-card" VBox.vgrow="ALWAYS">
+                    <TableView fx:id="tblDetalle" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="colDetalleProducto" minWidth="80.0" prefWidth="113.59997557401657" style="-fx-font-weight: bold;" text="PRODUCTO">
+                                <cellValueFactory>
+                                    <PropertyValueFactory property="nombreproducto" />
+                                </cellValueFactory>
+                            </TableColumn>
+
+                            <TableColumn fx:id="colDetalleCantidad" maxWidth="90.4000244140625" minWidth="40.0" prefWidth="88.800048828125" style="-fx-alignment: CENTER-RIGHT;" text="   CANTIDAD">
+                                <cellValueFactory>
+                                    <PropertyValueFactory property="cantidad" />
+                                </cellValueFactory>
+                            </TableColumn>
+
+                            <TableColumn fx:id="colDetalleSubtotal" minWidth="65.0" prefWidth="88.7999267578125" style="-fx-alignment: CENTER-RIGHT;" text="     SUBTOTAL">
+                                <cellValueFactory>
+                                    <PropertyValueFactory property="subtotal" />
+                                </cellValueFactory>
+                            </TableColumn>
+                        </columns>
+
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                        </columnResizePolicy>
+
+                        <placeholder>
+                            <VBox fx:id="boxSinDetalle" alignment="CENTER" spacing="8.0">
+                                <Label styleClass="tabla-vacia" text="Sin renglones que mostrar." />
+                            </VBox>
+                        </placeholder>
+                    </TableView>
+                </VBox>
+
+                <HBox fx:id="boxArticulosDetalle" alignment="CENTER_LEFT" />
+
+                <HBox fx:id="boxTotalDetalle" alignment="CENTER_LEFT">
+                    <Label styleClass="ticket-total-etiqueta" text="TOTAL" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Label fx:id="lblTotalDetalle" styleClass="ticket-total" text="\$0.00" />
+                </HBox>
+
+                <!--
+                    Acciones. Las dos primeras trabajan sobre el renglon
+                    seleccionado de la tabla; la ultima sobre la venta entera.
+                -->
+                <VBox fx:id="boxAcciones" spacing="8.0">
+                    <Button fx:id="btnCambiarCantidad" maxWidth="Infinity" styleClass="btn, btn-primary" text="Cambiar cantidad del renglón" />
+                    <Button fx:id="btnQuitarProducto" maxWidth="Infinity" styleClass="btn, btn-ghost" text="Quitar producto del ticket" />
+                    <Button fx:id="btnEliminarVenta" contentDisplay="LEFT" graphicTextGap="8.0" maxWidth="Infinity" styleClass="btn, btn-danger" text="Eliminar venta completa">
+                        <graphic>
+                            <SVGPath content="M2.5 4.5h11 M6 4.5V2.8h4v1.7 M4 4.5l0.8 9.2h6.4l0.8-9.2 M6.6 7v4 M9.4 7v4" styleClass="icon, icon-danger" />
+                        </graphic>
+                    </Button>
+                </VBox>
+            </VBox>
+        </HBox>
+    </center>
+</BorderPane>

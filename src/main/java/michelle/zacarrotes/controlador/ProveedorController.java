@@ -100,7 +100,7 @@ public class ProveedorController implements Initializable{
     private void cargarTablaCustom() {
         boxFilas.getChildren().clear(); 
         
-        List<Proveedor> lista = proveedorDao.ListarTodos(); // Cuidado: En tu DAO pusiste ListarTodos() con mayúscula inicial
+        List<Proveedor> lista = proveedorDao.ListarTodos();
         
         lblTotalProveedores.setText(String.valueOf(lista.size()));
         

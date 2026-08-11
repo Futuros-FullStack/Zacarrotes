@@ -47,6 +47,12 @@
             </graphic>
         </ToggleButton>
 
+        <ToggleButton fx:id="tgbHistorial" contentDisplay="LEFT" graphicTextGap="7.0" onAction="#irAHistorial" styleClass="nav-item" text="Historial" toggleGroup="$navGroup">
+            <graphic>
+                <SVGPath content="M8 1.5a6.5 6.5 0 1 0 0.01 0 Z M8 4.6V8.2l2.6 1.6" styleClass="icon" />
+            </graphic>
+        </ToggleButton>
+
         <ToggleButton fx:id="tgbProductos" contentDisplay="LEFT" graphicTextGap="7.0" onAction="#irAProductos" styleClass="nav-item" text="Productos" toggleGroup="$navGroup">
             <graphic>
                 <SVGPath content="M8 1.5 14.5 5v6L8 14.5 1.5 11V5z M1.5 5 8 8.5 14.5 5 M8 8.5v6" styleClass="icon, icon-light" />
