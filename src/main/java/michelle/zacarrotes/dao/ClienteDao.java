@@ -47,10 +47,11 @@ public class ClienteDao {
     
     public void editar(Cliente cliente) {
         try {
-            CallableStatement cs = conexion.prepareCall("{CALL p_editar_cliente(?, ?)}");
+            CallableStatement cs = conexion.prepareCall("CALL p_editar_cliente(?, ?)");
             cs.setInt(1, cliente.getIdCliente());
             cs.setString(2, cliente.getNombre());
             cs.execute();
+            System.out.println("Cliente actualizado con exito!!!");
         } catch (Exception e) {
             System.out.println("Error al editar: " + e);
         }
