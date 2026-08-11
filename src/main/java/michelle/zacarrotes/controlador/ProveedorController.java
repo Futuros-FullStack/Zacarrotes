@@ -45,18 +45,33 @@ public class ProveedorController implements Initializable{
         cargarTablaCustom();
     }
     
-    @FXML
+   @FXML
     private void guardarProveedor(ActionEvent event)
     {
-        if(txtNombre.getText().isEmpty() || txtDireccion.getText().isEmpty() || txtTelefono.getText().isEmpty())
+        String nombre = txtNombre.getText().trim();
+        String direccion = txtDireccion.getText().trim();
+        String telefono = txtTelefono.getText().trim();
+
+        if(nombre.isEmpty() || direccion.isEmpty() || telefono.isEmpty())
         {
-            mostrarAlerta("Error", "Por favor llena todos los campos.", Alert.AlertType.WARNING);
+            mostrarAlerta("Campos Incompletos", "Por favor llena todos los campos antes de guardar.", Alert.AlertType.WARNING);
             return;
         }
+
+        if (!nombre.matches("^[a-zA-Z0-9\\s\\.,&]+$")) {
+            mostrarAlerta("Formato Inválido", "El nombre del proveedor contiene caracteres no permitidos.\nSolo usa letras (sin acento), números, espacios, puntos, comas y '&'.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        if (!telefono.matches("^[0-9]{10}$")) {
+            mostrarAlerta("Formato Inválido", "El número de teléfono debe contener exactamente 10 dígitos numéricos (sin espacios ni guiones).", Alert.AlertType.WARNING);
+            return;
+        }
+
         Proveedor p = new Proveedor();
-        p.setNombreProveedor(txtNombre.getText());
-        p.setDireccion(txtDireccion.getText());
-        p.setTelefono(txtTelefono.getText());
+        p.setNombreProveedor(nombre);
+        p.setDireccion(direccion);
+        p.setTelefono(telefono);
         
         boolean exito;
         if(idProveedorActual == 0)
@@ -100,7 +115,7 @@ public class ProveedorController implements Initializable{
     private void cargarTablaCustom() {
         boxFilas.getChildren().clear(); 
         
-        List<Proveedor> lista = proveedorDao.ListarTodos(); // Cuidado: En tu DAO pusiste ListarTodos() con mayúscula inicial
+        List<Proveedor> lista = proveedorDao.ListarTodos(); 
         
         lblTotalProveedores.setText(String.valueOf(lista.size()));
         
