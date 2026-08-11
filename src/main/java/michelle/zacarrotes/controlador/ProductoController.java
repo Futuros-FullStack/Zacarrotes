@@ -42,17 +42,10 @@ import michelle.zacarrotes.dao.ProductoDao;
 import michelle.zacarrotes.dao.ProveedorDao;
 import michelle.zacarrotes.modelo.Producto;
 import michelle.zacarrotes.modelo.Proveedor;
-
-/**
- * Controlador de la vista de Productos (productos.fxml).
- *
- * Un solo boton "Guardar": si NO hay fila seleccionada inserta
- * (p_insertar_producto); si HAY fila seleccionada edita todos los campos con
- * p_editar_producto_completo (nombre, marca, precio, imagen, cantidad, caducidad
- * y proveedor, con semantica de "fijar" el valor, no sumar).
- */
+// esta clase controla toda la pantalla de productos (los campos, la tabla, botones, etc)
 public class ProductoController implements Initializable {
 
+    // todo esto son los campos de la pantalla que agarro del fxml
     @FXML private BorderPane pnlRaiz;
     @FXML private ImageView imgPreview;
     @FXML private TextField txtNombre;
@@ -62,6 +55,7 @@ public class ProductoController implements Initializable {
     @FXML private DatePicker dtpCaducidad;
     @FXML private ComboBox<Proveedor> cboProveedor;
 
+    // esta es la tabla y sus columnas
     @FXML private TableView<Producto> tblProductos;
     @FXML private TableColumn<Producto, Image> colIcono;
     @FXML private TableColumn<Producto, String> colProducto;
@@ -71,27 +65,23 @@ public class ProductoController implements Initializable {
     @FXML private TableColumn<Producto, LocalDate> colCaducidad;
     @FXML private TableColumn<Producto, String> colProveedor;
 
-    @FXML private Label lblTotalProductos;
+    @FXML private Label lblTotalProductos; // el numerito de cuantos productos hay
 
-    private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-    // Expresiones regulares para el filtrado en tiempo real (TextFormatter) y la
-    // validacion final del alta. \p{L} cubre letras Unicode (tildes, ñ).
+    private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy"); // pa mostrar la fecha bonita
     private static final String REGEX_LETRAS = "[\\p{L} ]*";           // solo letras y espacios
     private static final String REGEX_PRECIO = "\\d*\\.?\\d*";          // digitos y como maximo un punto
     private static final String REGEX_ENTERO = "\\d*";                  // solo digitos
 
+    // estos son mis ayudantes pa hablar con la base de datos
     private final ProductoDao productoDAO = new ProductoDao();
     private final ProveedorDao proveedorDAO = new ProveedorDao();
-    private final ObservableList<Producto> listaProductos = FXCollections.observableArrayList();
+    private final ObservableList<Producto> listaProductos = FXCollections.observableArrayList(); // la lista que ve la tabla
 
-    private Producto productoSeleccionado;
-    // URL/ruta de la imagen elegida en el FileChooser (se guarda tal cual en imagen_url).
-    private String imagenUrlSeleccionada;
+    private Producto productoSeleccionado; // el producto que agarre de la tabla (null si estoy creando uno nuevo)
+    private String imagenUrlSeleccionada; // la ruta de la imagen que elegi
+    private ContextMenu menuImagen; // el menucito de "borrar imagen"
 
-    // Menu contextual (clic izquierdo) para borrar la imagen del preview.
-    private ContextMenu menuImagen;
-
+    // esto corre solito cuando abre la pantalla, aqui prendo todo
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configurarComboProveedores();
@@ -100,19 +90,18 @@ public class ProductoController implements Initializable {
         configurarDeseleccion();
         configurarValidacionCampos();
 
-        tblProductos.setItems(listaProductos);
+        tblProductos.setItems(listaProductos); // le digo a la tabla que muestre mi lista
+        // cuando le pican a un renglon lo cargo en el formulario
         tblProductos.getSelectionModel().selectedItemProperty().addListener((obs, anterior, seleccionado) -> {
             if (seleccionado != null) {
                 cargarEnFormulario(seleccionado);
             }
         });
 
-        cargarProveedores();
-        cargarTabla();
+        cargarProveedores(); // lleno el combo de proveedores
+        cargarTabla(); // lleno la tabla con lo que hay en la bd
     }
-
-    // ================= Configuracion de la UI =================
-
+    // aqui le digo al combo como mostrar el nombre del proveedor (si no, saldria cosa rara)
     private void configurarComboProveedores() {
         cboProveedor.setConverter(new StringConverter<Proveedor>() {
             @Override
@@ -122,9 +111,10 @@ public class ProductoController implements Initializable {
 
             @Override
             public Proveedor fromString(String string) {
-                return null; // No editable.
+                return null;
             }
         });
+        // esto es pa que en la lista desplegable tambien salga el puro nombre
         cboProveedor.setCellFactory(cb -> new ListCell<Proveedor>() {
             @Override
             protected void updateItem(Proveedor item, boolean empty) {
@@ -134,9 +124,9 @@ public class ProductoController implements Initializable {
         });
     }
 
+    // aqui le doy formato a las columnas raras (imagen, precio y caducidad)
     private void configurarColumnas() {
-        // Miniatura: la columna entrega el Image (Producto.getImagen()); aqui solo
-        // se mete en un ImageView de 32 px.
+        // la columna del iconito: le pongo la imagen chiquita del producto
         colIcono.setCellFactory(col -> new TableCell<Producto, Image>() {
             private final ImageView vista = new ImageView();
             {
@@ -152,6 +142,7 @@ public class ProductoController implements Initializable {
             }
         });
 
+        // el precio lo muestro con signo de peso y 2 decimales
         colPrecio.setCellFactory(col -> new TableCell<Producto, BigDecimal>() {
             @Override
             protected void updateItem(BigDecimal precio, boolean empty) {
@@ -159,8 +150,7 @@ public class ProductoController implements Initializable {
                 setText(empty || precio == null ? null : String.format("$ %.2f", precio));
             }
         });
-
-        // Semaforo de caducidad como pastilla de color.
+        // la caducidad la pinto de color segun que tan cerca este de caducar (rojo/amarillo/verde)
         colCaducidad.setCellFactory(col -> new TableCell<Producto, LocalDate>() {
             @Override
             protected void updateItem(LocalDate fecha, boolean empty) {
@@ -171,22 +161,14 @@ public class ProductoController implements Initializable {
                     return;
                 }
                 setText(fecha.format(FECHA));
-                long dias = ChronoUnit.DAYS.between(LocalDate.now(), fecha);
+                long dias = ChronoUnit.DAYS.between(LocalDate.now(), fecha); // cuantos dias faltan
+                // 7 dias o menos = rojo, 30 o menos = amarillo, mas = verde
                 String estado = dias <= 7 ? "pill-danger" : dias <= 30 ? "pill-warn" : "pill-ok";
                 getStyleClass().addAll("pill", estado);
             }
         });
     }
-
-    /**
-     * Menu contextual del preview de imagen. Con clic IZQUIERDO sobre una imagen
-     * ya cargada aparece un ContextMenu con la unica opcion "Borrar imagen".
-     * Si el recuadro esta vacio (placeholder) el clic no hace nada.
-     *
-     * Este flujo es independiente del boton "Elegir imagen": borrar solo limpia
-     * el preview y la variable interna; en modo edicion la baja real de imagen_url
-     * (a null) ocurre hasta que el usuario presiona "Guardar".
-     */
+    // el menucito que sale al darle click a la imagen pa poder borrarla
     private void configurarMenuImagen() {
         MenuItem itemBorrar = new MenuItem("Borrar imagen");
         itemBorrar.setOnAction(e -> borrarImagen());
@@ -194,18 +176,18 @@ public class ProductoController implements Initializable {
         menuImagen = new ContextMenu(itemBorrar);
         menuImagen.getStyleClass().add("menu-imagen");
 
+        // si le pican con el click izquierdo y si hay imagen, le abro el menu
         imgPreview.setOnMouseClicked(e -> {
-            // Solo clic izquierdo y solo si hay una imagen que borrar.
             if (e.getButton() == MouseButton.PRIMARY && imgPreview.getImage() != null) {
                 menuImagen.show(imgPreview, e.getScreenX(), e.getScreenY());
             }
         });
     }
 
+    // borra la imagen del preview pero antes pregunta si de verdad quiere
     private void borrarImagen() {
-        // Por seguridad: si ya no hay imagen, no hay nada que hacer.
         if (imgPreview.getImage() == null) {
-            return;
+            return; // si no hay imagen ni le muevo
         }
 
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
@@ -214,32 +196,15 @@ public class ProductoController implements Initializable {
         confirmacion.setContentText("¿Seguro que quieres quitar esta imagen?");
         Optional<ButtonType> resultado = confirmacion.showAndWait();
         if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
-            // Se limpia el preview (vuelve el placeholder) y la ruta interna. En
-            // modo edicion, imagen_url se pondra a null al presionar "Guardar",
-            // sin borrar la fila de la base de datos.
             imgPreview.setImage(null);
-            imagenUrlSeleccionada = null;
+            imagenUrlSeleccionada = null; // tambien borro la ruta guardada
         }
     }
-
-    /**
-     * Clic "fuera de la tabla": al pulsar en cualquier zona de la vista que no
-     * sea una fila de la tabla ni un control de entrada (formulario en blanco,
-     * areas vacias, etiquetas...), se deselecciona la fila y el formulario
-     * vuelve a modo "nuevo producto" reutilizando {@link #limpiar()}.
-     *
-     * El manejador va en el panel raiz y los eventos de los hijos llegan por
-     * propagacion. Para no estorbar el uso normal, {@link #conservaSeleccion}
-     * ignora los clics sobre TextField, DatePicker, ComboBox, Button, la tabla
-     * y el preview de imagen (que ya tiene su propio menu contextual).
-     *
-     * Solo se limpia cuando hay un producto seleccionado (modo edicion); asi un
-     * clic en un area vacia no borra un alta que el usuario este capturando.
-     */
+    // si le pican a un lado (fuera de los campos) limpio el formulario
     private void configurarDeseleccion() {
         pnlRaiz.setOnMouseClicked(e -> {
             if (conservaSeleccion(e.getTarget())) {
-                return;
+                return; // si le pico a un campo o boton no hago nada
             }
             if (productoSeleccionado != null) {
                 limpiar();
@@ -247,14 +212,10 @@ public class ProductoController implements Initializable {
         });
     }
 
-    /**
-     * @return true si el nodo pulsado (o alguno de sus ancestros) es un control
-     *         con el que el usuario debe poder interactuar sin perder la
-     *         seleccion: la tabla, los campos del formulario, los botones o el
-     *         preview de imagen.
-     */
+    // reviso si donde pico es un campo/boton/tabla, pa NO limpiar en esos casos
     private boolean conservaSeleccion(Object destino) {
         Node nodo = (destino instanceof Node) ? (Node) destino : null;
+        // voy subiendo de padre en padre pa ver que fue lo que toco
         while (nodo != null) {
             if (nodo instanceof TableView
                     || nodo instanceof TextField
@@ -268,22 +229,7 @@ public class ProductoController implements Initializable {
         }
         return false;
     }
-
-    /**
-     * Filtrado en tiempo real de los campos del formulario mediante TextFormatter.
-     * Cada campo rechaza el caracter invalido en el momento de teclearlo (no solo
-     * al guardar):
-     *   - Nombre y Marca: solo letras (incluyendo tildes/ñ) y espacios.
-     *   - Precio: digitos y como maximo un punto decimal.
-     *   - Cantidad: solo digitos (enteros).
-     *
-     * El filtrado SOLO restringe en modo alta (sin producto seleccionado). En
-     * modo edicion se deja pasar cualquier cambio para no corromper los datos ya
-     * guardados: los nombres reales pueden contener numeros o unidades ("Leche
-     * 1 L"), y {@code setText} durante la carga del formulario tambien pasa por
-     * este filtro. La confirmacion y la validacion final por Alert tambien son
-     * exclusivas del alta (ver {@link #insertar()}).
-     */
+    // aqui le pongo el filtro a cada campo pa que no dejen escribir cosas invalidas
     private void configurarValidacionCampos() {
         txtNombre.setTextFormatter(new TextFormatter<>(filtroPorRegex(REGEX_LETRAS)));
         txtMarca.setTextFormatter(new TextFormatter<>(filtroPorRegex(REGEX_LETRAS)));
@@ -291,37 +237,32 @@ public class ProductoController implements Initializable {
         txtCantidad.setTextFormatter(new TextFormatter<>(filtroPorRegex(REGEX_ENTERO)));
     }
 
-    /**
-     * @return un filtro de TextFormatter que, solo en modo alta (sin producto
-     *         seleccionado), acepta el cambio unicamente si el texto resultante
-     *         completo cumple la expresion regular. En modo edicion no filtra.
-     */
+    // este es el filtro: deja pasar la tecla solo si el texto queda valido segun el regex
     private UnaryOperator<TextFormatter.Change> filtroPorRegex(String regex) {
         return cambio -> {
             if (productoSeleccionado != null) {
-                return cambio; // Modo edicion: no se restringe.
+                return cambio; // si estoy editando no filtro, dejo escribir libre
             }
             return cambio.getControlNewText().matches(regex) ? cambio : null;
         };
     }
 
-    // ================= Carga de datos =================
-
+    // trae los proveedores de la bd y los mete al combo
     private void cargarProveedores() {
         try {
             List<Proveedor> proveedores = proveedorDAO.ListarTodos();
             cboProveedor.setItems(FXCollections.observableArrayList(proveedores));
         } catch (RuntimeException e) {
-            // p.ej. falta una variable de entorno de la conexion.
-            alerta(Alert.AlertType.ERROR, "Conexión", e.getMessage());
+            alerta(Alert.AlertType.ERROR, "Conexión", e.getMessage()); // si truena la conexion aviso
         }
     }
 
+    // trae todos los productos de la bd y llena la tabla
     private void cargarTabla() {
         try {
             List<Producto> productos = productoDAO.listarTodos();
-            listaProductos.setAll(productos);
-            lblTotalProductos.setText(String.valueOf(listaProductos.size()));
+            listaProductos.setAll(productos); // reemplazo lo que habia por lo nuevo
+            lblTotalProductos.setText(String.valueOf(listaProductos.size())); // actualizo el contador
         } catch (SQLException e) {
             alerta(Alert.AlertType.ERROR, "Catálogo",
                     "No se pudo cargar el catálogo de productos.\n" + e.getMessage());
@@ -330,13 +271,12 @@ public class ProductoController implements Initializable {
         }
     }
 
+    // agarra el producto de la tabla y lo pone en los campos pa poder editarlo
     private void cargarEnFormulario(Producto producto) {
         productoSeleccionado = producto;
         txtNombre.setText(producto.getNombreproducto());
         txtMarca.setText(producto.getMarca());
         txtPrecio.setText(producto.getPrecio() == null ? "" : producto.getPrecio().toPlainString());
-        // Edicion "fija": lo que se ve es lo que se guarda, por eso se precarga la
-        // cantidad total actual (p_editar_producto_completo la reemplaza, no la suma).
         txtCantidad.setText(String.valueOf(producto.getCantidad()));
         dtpCaducidad.setValue(producto.getCaducidad());
         seleccionarProveedorPorNombre(producto.getNombreproveedor());
@@ -344,32 +284,33 @@ public class ProductoController implements Initializable {
         mostrarVistaPrevia(imagenUrlSeleccionada);
     }
 
+    // busca en el combo el proveedor que se llame igual y lo selecciona
     private void seleccionarProveedorPorNombre(String nombre) {
         if (nombre != null) {
             for (Proveedor proveedor : cboProveedor.getItems()) {
                 if (nombre.equals(proveedor.getNombreProveedor())) {
                     cboProveedor.getSelectionModel().select(proveedor);
-                    return;
+                    return; // ya lo encontre, me salgo
                 }
             }
         }
-        cboProveedor.getSelectionModel().clearSelection();
+        cboProveedor.getSelectionModel().clearSelection(); // si no lo hallo lo dejo vacio
     }
 
+    // muestra la imagen chiquita del producto en el preview
     private void mostrarVistaPrevia(String url) {
         if (url == null || url.trim().isEmpty()) {
-            imgPreview.setImage(null);
+            imgPreview.setImage(null); // sin ruta, sin imagen
             return;
         }
         try {
             imgPreview.setImage(new Image(url.trim(), 70, 70, true, true, true));
         } catch (Exception e) {
-            imgPreview.setImage(null);
+            imgPreview.setImage(null); // si la ruta esta mala no truena, solo la deja vacia
         }
     }
 
-    // ================= Acciones =================
-
+    // abre el explorador pa escoger una imagen png o jpg
     @FXML
     private void elegirImagen() {
         FileChooser chooser = new FileChooser();
@@ -378,13 +319,12 @@ public class ProductoController implements Initializable {
                 new FileChooser.ExtensionFilter("Imágenes PNG o JPG", "*.png", "*.jpg", "*.jpeg"));
         File archivo = chooser.showOpenDialog(imgPreview.getScene().getWindow());
         if (archivo != null) {
-            // Se guarda la URI absoluta del archivo (file:/...): se carga directo con
-            // Image(url) y se persiste tal cual en imagen_url.
-            imagenUrlSeleccionada = archivo.toURI().toString();
+            imagenUrlSeleccionada = archivo.toURI().toString(); // guardo la ruta
             mostrarVistaPrevia(imagenUrlSeleccionada);
         }
     }
 
+    // el boton guardar: si no hay nada seleccionado es nuevo, si no es editar
     @FXML
     private void guardar() {
         if (productoSeleccionado == null) {
@@ -394,46 +334,45 @@ public class ProductoController implements Initializable {
         }
     }
 
+    // aqui creo un producto nuevo (valido todo antes de mandarlo a la bd)
     private void insertar() {
-        String nombre = valorTrim(txtNombre);
+        String nombre = valorTrim(txtNombre); // agarro el texto y le quito espacios
         String marca = valorTrim(txtMarca);
 
-        // Confirmacion previa: solo en el alta, antes de validar y tocar la base
-        // de datos. Si el usuario elige "Cancelar" no se ejecuta nada y el
-        // formulario se queda tal cual.
+
         if (!confirmarGuardado(nombre)) {
-            return;
+            return; // si le pico cancelar no guardo
         }
 
-        // Validacion final (por si el campo quedo vacio pese al filtrado en vivo).
-        // El TextFormatter ya impide teclear caracteres invalidos, asi que aqui
-        // basta con exigir contenido con el formato correcto y mensajes claros.
+        // valido nombre: no vacio y solo letras
         if (nombre.isEmpty() || !nombre.matches(REGEX_LETRAS)) {
             alerta(Alert.AlertType.ERROR, "Validación", "El nombre solo acepta letras.");
             return;
         }
+        // lo mismo con la marca
         if (marca.isEmpty() || !marca.matches(REGEX_LETRAS)) {
             alerta(Alert.AlertType.ERROR, "Validación", "La marca solo acepta letras.");
             return;
         }
-        BigDecimal precio = validarPrecioInsert();
+        BigDecimal precio = validarPrecioInsert(); // valido y convierto el precio
         if (precio == null) {
-            return;
+            return; // si vino mal me salgo (ya avise adentro)
         }
-        Integer cantidad = validarCantidadInsert();
+        Integer cantidad = validarCantidadInsert(); // valido la cantidad
         if (cantidad == null) {
             return;
         }
-        LocalDate caducidad = validarCaducidad();
+        LocalDate caducidad = validarCaducidad(); // valido la fecha
         if (caducidad == null) {
             return;
         }
-        Proveedor proveedor = cboProveedor.getValue();
+        Proveedor proveedor = cboProveedor.getValue(); // agarro el proveedor elegido
         if (proveedor == null) {
             alerta(Alert.AlertType.WARNING, "Validación", "Selecciona un proveedor.");
             return;
         }
 
+        // ya que todo esta bien, armo el producto nuevo
         Producto nuevo = new Producto();
         nuevo.setNombreproducto(nombre);
         nuevo.setMarca(marca);
@@ -444,15 +383,16 @@ public class ProductoController implements Initializable {
         nuevo.setIdproveedor(proveedor.getIdProveedor());
 
         try {
-            productoDAO.insertar(nuevo);
-            cargarTabla();
-            limpiar();
+            productoDAO.insertar(nuevo); // lo mando a la bd
+            cargarTabla(); // refresco la tabla pa que aparezca
+            limpiar(); // limpio los campos
             alerta(Alert.AlertType.INFORMATION, "Productos", "Producto agregado correctamente.");
         } catch (SQLException e) {
             alerta(Alert.AlertType.ERROR, "Productos", "No se pudo agregar el producto.\n" + e.getMessage());
         }
     }
 
+    // aqui edito el producto que ya existe
     private void editar() {
         String nombre = valorTrim(txtNombre);
         String marca = valorTrim(txtMarca);
@@ -460,11 +400,11 @@ public class ProductoController implements Initializable {
             alerta(Alert.AlertType.WARNING, "Validación", "Nombre y marca son obligatorios.");
             return;
         }
-        BigDecimal precio = parsearPrecio();
+        BigDecimal precio = parsearPrecio(); // valido precio
         if (precio == null) {
             return;
         }
-        Integer cantidad = parsearCantidad(true);
+        Integer cantidad = parsearCantidad(true); // valido cantidad (obligatoria)
         if (cantidad == null) {
             return;
         }
@@ -478,13 +418,11 @@ public class ProductoController implements Initializable {
             return;
         }
 
-        // Confirmacion previa: solo en modo edicion, antes de tocar la base de
-        // datos. Si el usuario elige "Cancelar" no se ejecuta nada, no se limpia
-        // el formulario y no se deselecciona la fila.
         if (!confirmarModificacion(productoSeleccionado.getNombreproducto())) {
-            return;
+            return; // si cancela no edito
         }
 
+        // le cambio los datos al producto seleccionado
         productoSeleccionado.setNombreproducto(nombre);
         productoSeleccionado.setMarca(marca);
         productoSeleccionado.setPrecio(precio);
@@ -494,11 +432,9 @@ public class ProductoController implements Initializable {
         productoSeleccionado.setIdproveedor(proveedor.getIdProveedor());
 
         try {
-            // Edicion completa: fija nombre, marca, precio, imagen, cantidad,
-            // caducidad y proveedor en una sola llamada. El DAO devuelve cuantas
-            // filas quedaron con los datos esperados (verificacion real, no se
-            // asume exito).
-            int filasActualizadas = productoDAO.editarCompleto(productoSeleccionado);
+
+            int filasActualizadas = productoDAO.editarCompleto(productoSeleccionado); // lo mando a la bd
+            // si no cambio ninguna fila es que alguien ya lo movio o borro
             if (filasActualizadas == 0) {
                 alerta(Alert.AlertType.ERROR, "Productos",
                         "No se aplicó ningún cambio. El producto pudo haber sido "
@@ -514,13 +450,7 @@ public class ProductoController implements Initializable {
         }
     }
 
-    /**
-     * Alert de confirmacion para la edicion. Botones personalizados "Sí" y
-     * "Cancelar".
-     *
-     * @return true solo si el usuario presiono "Sí"; false si cancelo o cerro
-     *         el dialogo.
-     */
+    // ventanita de "seguro que quieres modificar?", regresa true si le pico que si
     private boolean confirmarModificacion(String nombre) {
         ButtonType btnSi = new ButtonType("Sí", ButtonBar.ButtonData.YES);
         ButtonType btnCancelar = new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE);
@@ -535,13 +465,7 @@ public class ProductoController implements Initializable {
         return resultado.isPresent() && resultado.get() == btnSi;
     }
 
-    /**
-     * Alert de confirmacion para el alta de un producto nuevo. Botones
-     * personalizados "Sí" y "Cancelar".
-     *
-     * @return true solo si el usuario presiono "Sí"; false si cancelo o cerro
-     *         el dialogo.
-     */
+    // igualita pero pa cuando guardas uno nuevo
     private boolean confirmarGuardado(String nombre) {
         ButtonType btnSi = new ButtonType("Sí", ButtonBar.ButtonData.YES);
         ButtonType btnCancelar = new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE);
@@ -556,13 +480,15 @@ public class ProductoController implements Initializable {
         return resultado.isPresent() && resultado.get() == btnSi;
     }
 
+    // el boton eliminar
     @FXML
     private void eliminar() {
         if (productoSeleccionado == null) {
             alerta(Alert.AlertType.WARNING, "Eliminar", "Selecciona un producto de la tabla para eliminarlo.");
-            return;
+            return; // si no agarraste nada, no hay que borrar
         }
 
+        // pregunto antes de borrar porque ya no hay vuelta atras
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacion.setTitle("Eliminar producto");
         confirmacion.setHeaderText(null);
@@ -571,11 +497,12 @@ public class ProductoController implements Initializable {
         Optional<ButtonType> resultado = confirmacion.showAndWait();
         if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
             try {
-                productoDAO.eliminar(productoSeleccionado.getIdproducto());
+                productoDAO.eliminar(productoSeleccionado.getIdproducto()); // lo borro de la bd
                 cargarTabla();
                 limpiar();
                 alerta(Alert.AlertType.INFORMATION, "Productos", "Producto eliminado correctamente.");
             } catch (SQLException e) {
+                // el 23503 es cuando el producto tiene ventas amarradas, por eso no deja borrar
                 if ("23503".equals(e.getSQLState())) {
                     alerta(Alert.AlertType.ERROR, "No se puede eliminar",
                             "Este producto tiene ventas relacionadas, por eso no se puede eliminar.\n"
@@ -588,6 +515,7 @@ public class ProductoController implements Initializable {
         }
     }
 
+    // deja todos los campos vacios y sin nada seleccionado
     private void limpiar() {
         productoSeleccionado = null;
         imagenUrlSeleccionada = null;
@@ -601,12 +529,13 @@ public class ProductoController implements Initializable {
         imgPreview.setImage(null);
     }
 
-    // ================= Validaciones =================
 
+    // atajo pa sacar el texto de un campo sin espacios (y si esta null regresa vacio)
     private String valorTrim(TextField campo) {
         return campo.getText() == null ? "" : campo.getText().trim();
     }
 
+    // valida el precio al editar: no vacio, numero valido y no negativo
     private BigDecimal parsearPrecio() {
         String texto = valorTrim(txtPrecio);
         if (texto.isEmpty()) {
@@ -614,7 +543,7 @@ public class ProductoController implements Initializable {
             return null;
         }
         try {
-            BigDecimal precio = new BigDecimal(texto.replace(",", "."));
+            BigDecimal precio = new BigDecimal(texto.replace(",", ".")); // si puso coma la cambio por punto
             if (precio.signum() < 0) {
                 alerta(Alert.AlertType.WARNING, "Validación", "El precio no puede ser negativo.");
                 return null;
@@ -622,16 +551,11 @@ public class ProductoController implements Initializable {
             return precio;
         } catch (NumberFormatException e) {
             alerta(Alert.AlertType.WARNING, "Validación", "El precio debe ser un número, ej. 28.50");
-            return null;
+            return null; // si no es numero regreso null
         }
     }
 
-    /**
-     * @param obligatoria true en alta (la cantidad es requerida); false en edicion
-     *                    (vacia = 0, no se agrega stock). Si hay texto, siempre debe
-     *                    ser un entero >= 0.
-     * @return la cantidad, o null si hubo error de validacion.
-     */
+    // valida la cantidad al editar (obligatoria = si o si tiene que traer algo)
     private Integer parsearCantidad(boolean obligatoria) {
         String texto = valorTrim(txtCantidad);
         if (texto.isEmpty()) {
@@ -639,7 +563,7 @@ public class ProductoController implements Initializable {
                 alerta(Alert.AlertType.WARNING, "Validación", "La cantidad es obligatoria.");
                 return null;
             }
-            return 0;
+            return 0; // si no es obligatoria y esta vacia, le pongo 0
         }
         try {
             int cantidad = Integer.parseInt(texto);
@@ -654,18 +578,13 @@ public class ProductoController implements Initializable {
         }
     }
 
-    /**
-     * Validacion final del precio para el alta. El TextFormatter ya garantiza que
-     * solo haya digitos y un punto; aqui se rechaza el vacio o un resto que no
-     * pueda parsearse (p.ej. solo un punto ".").
-     *
-     * @return el precio, o null si hubo error (mostrando el Alert correspondiente).
-     */
+
+    // valida el precio al crear uno nuevo (aqui debe traer numero si o si)
     private BigDecimal validarPrecioInsert() {
         String texto = valorTrim(txtPrecio);
         try {
             if (texto.isEmpty()) {
-                throw new NumberFormatException("vacío");
+                throw new NumberFormatException("vacío"); // vacio lo trato como error
             }
             return new BigDecimal(texto);
         } catch (NumberFormatException e) {
@@ -673,13 +592,7 @@ public class ProductoController implements Initializable {
             return null;
         }
     }
-
-    /**
-     * Validacion final de la cantidad para el alta. El TextFormatter ya garantiza
-     * que solo haya digitos; aqui se rechaza el vacio.
-     *
-     * @return la cantidad, o null si hubo error (mostrando el Alert correspondiente).
-     */
+    // lo mismo pero pa la cantidad al crear uno nuevo
     private Integer validarCantidadInsert() {
         String texto = valorTrim(txtCantidad);
         try {
@@ -693,6 +606,7 @@ public class ProductoController implements Initializable {
         }
     }
 
+    // valida la fecha de caducidad: que este puesta y que no sea del pasado
     private LocalDate validarCaducidad() {
         LocalDate caducidad = dtpCaducidad.getValue();
         if (caducidad == null) {
@@ -706,6 +620,7 @@ public class ProductoController implements Initializable {
         return caducidad;
     }
 
+    // metodito pa no repetir el codigo de las ventanas de aviso, solo le paso el tipo, titulo y mensaje
     private void alerta(Alert.AlertType tipo, String titulo, String mensaje) {
         Alert alert = new Alert(tipo);
         alert.setTitle(titulo);
