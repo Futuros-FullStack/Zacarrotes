@@ -12,22 +12,23 @@ import java.io.IOException;
 
 public class App extends Application {
 
+    //constantes para acceder a los diseños 
     public static final String VISTA_VENTA       = "/vistas/venta.fxml";
+    public static final String VISTA_HISTORIAL   = "/vistas/historial.fxml";
     public static final String VISTA_PRODUCTOS   = "/vistas/productos.fxml";
     public static final String VISTA_CLIENTES    = "/vistas/clientes.fxml";
     public static final String VISTA_PROVEEDORES = "/vistas/proveedores.fxml";
 
-    private static Scene scene;
+    private static Scene scene; // scene se utiliza para pintar los lienzos y se pone ahi para que todos los metodos accedan a ella
 
     @Override
     public void start(Stage stage) throws IOException {
-        Parent root = cargar(VISTA_PRODUCTOS);
-        marcarSeccion(root, "tgbProductos");
-
-        scene = new Scene(root, 1150, 720);
+        Parent root = cargar(VISTA_VENTA);
+        marcarSeccion(root, "tgbVenta"); //hace que el boton aparezca seleccionado desde el principio
+        scene = new Scene(root, 1150, 720); //pone tamaños y pinta la vista de ventas
         stage.setTitle("Zacarrotes");
         stage.setScene(scene);
-        stage.show();
+        stage.show();//para ver la vista
     }
 
     public static void cambiarVista(String recursoFxml, String idBoton) {
@@ -45,7 +46,7 @@ public class App extends Application {
         if (url == null) {
             throw new IOException("no esta en el classpath");
         }
-        return FXMLLoader.load(url);
+        return FXMLLoader.load(url); //traduce a botones y graficos
     }
 
     private static void marcarSeccion(Parent root, String idBoton) {

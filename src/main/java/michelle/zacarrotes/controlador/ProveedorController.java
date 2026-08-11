@@ -115,7 +115,7 @@ public class ProveedorController implements Initializable{
     private void cargarTablaCustom() {
         boxFilas.getChildren().clear(); 
         
-        List<Proveedor> lista = proveedorDao.ListarTodos(); 
+        List<Proveedor> lista = proveedorDao.ListarTodos();
         
         lblTotalProveedores.setText(String.valueOf(lista.size()));
         

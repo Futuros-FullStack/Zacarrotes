@@ -49,7 +49,6 @@
 
                     <HBox fx:id="boxTitulo" alignment="BOTTOM_LEFT" spacing="10.0">
                         <Label fx:id="lblTitulo" styleClass="card-title" text="Todos los productos" />
-                        <Label fx:id="lblConteo" styleClass="conteo-articulos" text="0 artículos" />
                     </HBox>
 
                     <ScrollPane fx:id="scrProductos" fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS">
@@ -66,7 +65,6 @@
 
                     <HBox fx:id="boxTituloTicket" alignment="CENTER_LEFT" spacing="10.0">
                         <Label fx:id="lblTituloTicket" styleClass="card-title" text="Ticket" />
-                        <Label fx:id="lblFolio" styleClass="badge-ticket" />
                     </HBox>
 
                     <ComboBox fx:id="cboCliente" maxWidth="Infinity" promptText="Público general" />
@@ -79,13 +77,13 @@
                     <VBox fx:id="pnlTablaTicket" styleClass="table-card" VBox.vgrow="ALWAYS">
                         <TableView fx:id="tblTicket" VBox.vgrow="ALWAYS">
                             <columns>
-                                <TableColumn fx:id="colTicketProducto" minWidth="85.59997557401657" prefWidth="96.79992674589157" style="-fx-font-weight: bold;" text="PRODUCTO">
+                                <TableColumn fx:id="colTicketProducto" minWidth="85.59997557401657" prefWidth="88.00012205839157" style="-fx-font-weight: bold;" text="PRODUCTO">
                                     <cellValueFactory>
                                         <PropertyValueFactory property="nombreproducto" />
                                     </cellValueFactory>
                                 </TableColumn>
 
-                                <TableColumn fx:id="colTicketCantidad" maxWidth="80.0" minWidth="40.0" prefWidth="73.5999755859375" style="-fx-alignment: CENTER-RIGHT;" text="CANT.">
+                                <TableColumn fx:id="colTicketCantidad" maxWidth="82.39990234375" minWidth="40.0" prefWidth="82.39990234375" style="-fx-alignment: CENTER-RIGHT;" text="CANTIDAD">
                                     <cellValueFactory>
                                         <PropertyValueFactory property="cantidad" />
                                     </cellValueFactory>
@@ -112,13 +110,6 @@
                             </placeholder>
                         </TableView>
                     </VBox>
-
-                    <!-- Totales -->
-                    <HBox fx:id="boxArticulos" alignment="CENTER_LEFT">
-                        <Label styleClass="ticket-etiqueta" text="Artículos" />
-                        <Region HBox.hgrow="ALWAYS" />
-                        <Label fx:id="lblArticulos" styleClass="ticket-valor" text="0" />
-                    </HBox>
 
                     <!-- venta.total -->
                     <HBox fx:id="boxTotal" alignment="CENTER_LEFT">

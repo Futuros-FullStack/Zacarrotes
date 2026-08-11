@@ -11,6 +11,11 @@ public class NavbarController {
     }
 
     @FXML
+    private void irAHistorial() {
+        App.cambiarVista(App.VISTA_HISTORIAL, "tgbHistorial");
+    }
+
+    @FXML
     private void irAProductos() {
         App.cambiarVista(App.VISTA_PRODUCTOS, "tgbProductos");
     }

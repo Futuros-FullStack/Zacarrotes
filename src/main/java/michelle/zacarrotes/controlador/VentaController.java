@@ -10,29 +10,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.TableRow;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TableCell;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
-import javafx.util.StringConverter;
 import michelle.zacarrotes.dao.ClienteDao;
 import michelle.zacarrotes.dao.ProductoDao;
 import michelle.zacarrotes.dao.VentaDao;
@@ -44,34 +39,31 @@ import michelle.zacarrotes.modelo.Producto;
 public class VentaController implements Initializable {
 
     private static final String TARJETA = "/vistas/comunes/tarjeta-producto.fxml";
-    private static final int CLIENTE_MOSTRADOR = 1; //para el cliente desconocido 
+    private static final int CLIENTE_GENERAL = 1; //Definimos que el cliente general será el #1 siempre en la base 
 
-    @FXML private Label lblConteo;
     @FXML private FlowPane boxTarjetas;
-    @FXML private Label lblFolio;
     @FXML private ComboBox<Cliente> cboCliente;
     @FXML private TableView<DetalleVenta> tblTicket;
     @FXML private TableColumn<DetalleVenta, BigDecimal> colTicketSubtotal;
-    @FXML private Label lblArticulos;
     @FXML private Label lblTotal;
     @FXML private Button btnCobrar;
     @FXML private Button btnCancelar;
 
-    private final ProductoDao productoDAO = new ProductoDao();
+    private final ProductoDao productoDAO = new ProductoDao(); //son los encargados de hablar con la base (instancio para tener acceso a ellos)
     private final ClienteDao clienteDAO = new ClienteDao();
     private final VentaDao ventaDAO = new VentaDao();
 
-    private final ObservableList<DetalleVenta> ticket = FXCollections.observableArrayList();
-    private final Map<Integer, Producto> catalogo = new HashMap<>();
-    private final Map<Integer, TarjetaProductoController> tarjetas = new HashMap<>();
+    private final ObservableList<DetalleVenta> ticket = FXCollections.observableArrayList(); //liste observable que cambia automaticamente en la interfaz, final porque nunca va a cambiar siempre será la misma 
+    private final Map<Integer, Producto> catalogo = new HashMap<>(); //integer porque id es entero, producto objeto completo con nombre, stock, es como un diccionario que buscar rapidamente 
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        configurarComboClientes();
+ 
         configurarTablaTicket();
-
-        tblTicket.setItems(ticket);
-        btnCobrar.setOnAction(e -> cobrar());
+        configurarMenuClicDerecho();
+        
+        tblTicket.setItems(ticket); //conecta la tabla del ticket con la lista ticket 
+        btnCobrar.setOnAction(e -> cobrar()); //cuando ocurra este metodo e tomara el valor o ejecutara cobrar
         btnCancelar.setOnAction(e -> cancelar());
 
         cargarClientes();
@@ -80,72 +72,103 @@ public class VentaController implements Initializable {
     }
 
 
-    private void configurarComboClientes() {
-        cboCliente.setConverter(new StringConverter<Cliente>() {
-            @Override
-            public String toString(Cliente cliente) {
-                return cliente == null ? "" : cliente.getNombre();
-            }
-
-            @Override
-            public Cliente fromString(String string) {
-                return null;
-            }
-        });
-        cboCliente.setCellFactory(cb -> new ListCell<Cliente>() {
-            @Override
-            protected void updateItem(Cliente item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.getNombre());
-            }
-        });
-    }
-
     private void configurarTablaTicket() {
-        colTicketSubtotal.setCellFactory(col -> new TableCell<DetalleVenta, BigDecimal>() {
-            @Override
-            protected void updateItem(BigDecimal subtotal, boolean empty) {
-                super.updateItem(subtotal, empty);
-                setText(empty || subtotal == null ? null : String.format("$ %.2f", subtotal));
+    colTicketSubtotal.setCellFactory(col -> new TableCell<DetalleVenta, BigDecimal>() {
+        @Override
+        protected void updateItem(BigDecimal subtotal, boolean empty) {
+            super.updateItem(subtotal, empty);
+            
+            if (empty == true || subtotal == null) {
+                // Si está vacío o no hay dinero, no ponemos nada en el texto
+                setText(null);
+            } else {
+                // Si sí hay datos, le damos formato.
+                setText(String.format("$ %.2f", subtotal));
             }
-        });
+        }
+    });
+}
 
-        tblTicket.setRowFactory(tv -> {
-            TableRow<DetalleVenta> fila = new TableRow<>();
+     private void limpiarTicket() {
+        ticket.clear(); //limpia la lista de memoria 
+        cboCliente.getSelectionModel().clearSelection(); //limpia el cliente seleccionado
+    }
+    
+    private void agregarAlTicket(Producto producto) {
+        
+        int piezasEnTicket = cantidadEnTicket(producto.getIdproducto());
+        int disponible = producto.getCantidad() - piezasEnTicket;
+        
+        if (disponible <= 0) {
+            alerta(Alert.AlertType.WARNING, "Sin existencia", "Ya no quedan piezas de \"" + producto.getNombreproducto() + "\".");
+            return;
+        }
 
-            MenuItem itemMas = new MenuItem("Agregar una pieza");
-            itemMas.setOnAction(e -> sumarPiezas(fila.getItem(), 1));
+     
+        DetalleVenta renglon = buscarEnTicket(producto.getIdproducto());
+        
+        if (renglon == null) {
+            // Caso a: Es la primera vez que agregamos este producto
+            renglon = new DetalleVenta();
+            renglon.setIdProducto(producto.getIdproducto());
+            renglon.setNombreproducto(producto.getNombreproducto());
+            renglon.setMarca(producto.getMarca());
+            
+            // Le ponemos 1 pieza y calculamos su subtotal (Precio x 1)
+            renglon.setCantidad(1);
+            renglon.setSubtotal(producto.getPrecio().multiply(BigDecimal.valueOf(1)));
+            
+            ticket.add(renglon);
+            
+        } else {
+            // Caso b: El producto ya estaba, solo le sumamos 1
+            int nuevaCantidad = renglon.getCantidad() + 1;
+            renglon.setCantidad(nuevaCantidad);
+            
+            // Volvemos a calcular su subtotal (Precio x la nueva cantidad)
+            renglon.setSubtotal(producto.getPrecio().multiply(BigDecimal.valueOf(nuevaCantidad)));
+        }
 
-            MenuItem itemMenos = new MenuItem("Quitar una pieza");
-            itemMenos.setOnAction(e -> sumarPiezas(fila.getItem(), -1));
-
-            MenuItem itemCantidad = new MenuItem("Cambiar cantidad...");
-            itemCantidad.setOnAction(e -> pedirCantidad(fila.getItem()));
-
-            MenuItem itemQuitar = new MenuItem("Quitar del ticket");
-            itemQuitar.setOnAction(e -> quitarDelTicket(fila.getItem()));
-
-            ContextMenu menu = new ContextMenu(itemMas, itemMenos, itemCantidad,
-                    new SeparatorMenuItem(), itemQuitar);
-
-            fila.contextMenuProperty().bind(
-                    Bindings.when(fila.emptyProperty())
-                            .then((ContextMenu) null)
-                            .otherwise(menu));
-            return fila;
-        });
+        refrescarTotales();
     }
 
+    private DetalleVenta buscarEnTicket(int idProducto) { //me entregará un objeto de detalle venta pero necesita que le de el idproducto
+        for (DetalleVenta renglon : ticket) { //cada elemento que vaya revisando del ticket llamalo renglon remporalmente,
+            if (renglon.getIdProducto() == idProducto) { //si el renglon que reviso coincide con el id del producto original retorna ese renglon y rompe el ciclo
+                return renglon;
+            }
+        }
+        return null;
+    }
 
-    private void cargarClientes() {
-        List<Cliente> clientes = clienteDAO.listarClientes();
-        cboCliente.setItems(FXCollections.observableArrayList(clientes));
+   private int cantidadEnTicket(int idProducto) {
+        DetalleVenta renglonticket = buscarEnTicket(idProducto);
+        
+        if (renglonticket == null) {
+            return 0; // Si no lo encontró, hay 0 piezas en el ticket
+        } else {
+            return renglonticket.getCantidad(); // Si sí lo encontró, nos dice cuántas hay
+        }
+    }
+    
+    
+    private void refrescarTotales() {
+        int articulos = 0; 
+        BigDecimal total = BigDecimal.ZERO; //prepara y pon en 0 esa variable
+    
+        for (DetalleVenta renglon : ticket) { //recorre uno por uno todos los productos del ticket
+            articulos = articulos + renglon.getCantidad(); //la cantidad de articulos sumale la canditad que está revisando.
+            if (renglon.getSubtotal() != null) {
+                total = total.add(renglon.getSubtotal()); //si el subtotal no está en blanco añadelo al total
+            }
+        }
+        lblTotal.setText(String.format("$ %.2f", total));
+        tblTicket.refresh();
     }
 
     private void cargarCatalogo() {
-        boxTarjetas.getChildren().clear();
-        catalogo.clear();
-        tarjetas.clear();
+        boxTarjetas.getChildren().clear(); //limpia antes de mostrar
+        catalogo.clear(); //limpia el catalogo
 
         try {
             List<Producto> productos = productoDAO.listarTodos();
@@ -159,171 +182,45 @@ public class VentaController implements Initializable {
 
                 boxTarjetas.getChildren().add(tarjeta);
                 catalogo.put(producto.getIdproducto(), producto);
-                tarjetas.put(producto.getIdproducto(), control);
             }
-            lblConteo.setText(productos.size() + (productos.size() == 1 ? " artículo" : " artículos"));
         } catch (SQLException e) {
-            alerta(Alert.AlertType.ERROR, "Catálogo",
-                    "No se pudo cargar el catálogo de productos.\n" + e.getMessage());
+            alerta(Alert.AlertType.ERROR, "Catalogo","No se pudo cargar el catalogo de productos.\n" + e.getMessage());
         } catch (IOException e) {
-            alerta(Alert.AlertType.ERROR, "Catálogo",
-                    "No se pudo cargar el diseño de la tarjeta de producto.\n" + e.getMessage());
-        } catch (RuntimeException e) {
-            alerta(Alert.AlertType.ERROR, "Conexión", e.getMessage());
+            alerta(Alert.AlertType.ERROR, "Catalogo", "No se pudo cargar el diseño de la tarjeta de producto.\n" + e.getMessage());
         }
     }
-
- 
-    private void agregarAlTicket(Producto producto) {
-        
-        int disponible = producto.getCantidad() - cantidadEnTicket(producto.getIdproducto());
-        if (disponible <= 0) {
-            alerta(Alert.AlertType.WARNING, "Sin existencia",
-                    "Ya no quedan piezas de \"" + producto.getNombreproducto() + "\".");
-            return;
-        }
-
-        DetalleVenta renglon = buscarEnTicket(producto.getIdproducto());
-        if (renglon == null) {
-            renglon = new DetalleVenta();
-            renglon.setIdProducto(producto.getIdproducto());
-            renglon.setNombreproducto(producto.getNombreproducto());
-            renglon.setMarca(producto.getMarca());
-            ticket.add(renglon);
-        }
-        fijarCantidad(renglon, producto, renglon.getCantidad() + 1);
-
-        refrescarTotales();
-    }
-
-    private void sumarPiezas(DetalleVenta renglon, int piezas) {
-        if (renglon != null) {
-            cambiarCantidad(renglon, renglon.getCantidad() + piezas);
-        }
-    }
-
-    private void pedirCantidad(DetalleVenta renglon) {
-        if (renglon == null) {
-            return;
-        }
-
-        TextInputDialog dialogo = new TextInputDialog(String.valueOf(renglon.getCantidad()));
-        dialogo.setTitle("Cambiar cantidad");
-        dialogo.setHeaderText(null);
-        dialogo.setContentText("Piezas de \"" + renglon.getNombreproducto() + "\":");
-
-        Optional<String> respuesta = dialogo.showAndWait();
-        if (!respuesta.isPresent()) {
-            return;
-        }
-        try {
-            cambiarCantidad(renglon, Integer.parseInt(respuesta.get().trim()));
-        } catch (NumberFormatException e) {
-            alerta(Alert.AlertType.WARNING, "Validación", "La cantidad debe ser un número entero.");
-        }
-    }
-
-    private void cambiarCantidad(DetalleVenta renglon, int cantidadNueva) {
-        if (renglon == null) {
-            return;
-        }
-        if (cantidadNueva <= 0) {
-            quitarDelTicket(renglon);
-            return;
-        }
-
-        Producto producto = catalogo.get(renglon.getIdProducto());
-        if (cantidadNueva > producto.getCantidad()) {
-            alerta(Alert.AlertType.WARNING, "Sin existencia",
-                    "Solo hay " + producto.getCantidad() + " piezas de \""
-                    + producto.getNombreproducto() + "\".");
-            return;
-        }
-
-        fijarCantidad(renglon, producto, cantidadNueva);
-        refrescarTotales();
-    }
-
-    private void fijarCantidad(DetalleVenta renglon, Producto producto, int cantidad) {
-        renglon.setCantidad(cantidad);
-        renglon.setSubtotal(precioDe(producto).multiply(BigDecimal.valueOf(cantidad)));
-    }
-
-    private void quitarDelTicket(DetalleVenta renglon) {
-        if (renglon != null) {
-            ticket.remove(renglon);
-            refrescarTotales();
-        }
-    }
-
-    private DetalleVenta buscarEnTicket(int idProducto) {
-        for (DetalleVenta renglon : ticket) {
-            if (renglon.getIdProducto() == idProducto) {
-                return renglon;
-            }
-        }
-        return null;
-    }
-
-    private int cantidadEnTicket(int idProducto) {
-        DetalleVenta renglon = buscarEnTicket(idProducto);
-        return renglon == null ? 0 : renglon.getCantidad();
-    }
-
-    private BigDecimal precioDe(Producto producto) {
-        return producto.getPrecio() == null ? BigDecimal.ZERO : producto.getPrecio();
+    
+    
+    
+    private void cargarClientes() {
+        List<Cliente> clientes = clienteDAO.listarClientes(); //lista los clientes y los pinta en la lista automatica
+        cboCliente.setItems(FXCollections.observableArrayList(clientes));
     }
 
     
-    private void refrescarTotales() {
-        int articulos = 0;
-        BigDecimal total = BigDecimal.ZERO;
-        for (DetalleVenta renglon : ticket) {
-            articulos += renglon.getCantidad();
-            if (renglon.getSubtotal() != null) {
-                total = total.add(renglon.getSubtotal());
-            }
-        }
-
-        lblArticulos.setText(String.valueOf(articulos));
-        lblTotal.setText(String.format("$ %.2f", total));
-        tblTicket.refresh();
-
-        for (Map.Entry<Integer, TarjetaProductoController> entrada : tarjetas.entrySet()) {
-            Producto producto = catalogo.get(entrada.getKey());
-            entrada.getValue().mostrarDisponible(
-                    producto.getCantidad() - cantidadEnTicket(entrada.getKey()));
-        }
-    }
-
-
+    
     private void cobrar() {
         if (ticket.isEmpty()) {
-            alerta(Alert.AlertType.WARNING, "Ticket vacío",
-                    "Agrega al menos un producto antes de cobrar.");
+            alerta(Alert.AlertType.WARNING, "Ticket vacío", "Agrega al menos un producto antes de cobrar.");
             return;
         }
-
         Cliente cliente = cboCliente.getValue();
-        int idCliente = cliente == null ? CLIENTE_MOSTRADOR : cliente.getIdCliente();
+        int idCliente = cliente == null ? CLIENTE_GENERAL : cliente.getIdCliente();
 
         try {
             int folio = ventaDAO.registrarTicket(idCliente, new ArrayList<>(ticket));
-            lblFolio.setText("#" + folio);
-            alerta(Alert.AlertType.INFORMATION, "Venta",
-                    "Venta registrada con el folio #" + folio + ".");
-
+            alerta(Alert.AlertType.INFORMATION, "Venta", "Venta registrada con el folio #" + folio + ".");
             limpiarTicket();
             cargarCatalogo();
             refrescarTotales();
         } catch (SQLException e) {
-       
             alerta(Alert.AlertType.ERROR, "No se pudo cobrar", e.getMessage());
         } catch (RuntimeException e) {
             alerta(Alert.AlertType.ERROR, "Conexión", e.getMessage());
         }
     }
 
+    
     private void cancelar() {
         if (ticket.isEmpty()) {
             return;
@@ -332,20 +229,122 @@ public class VentaController implements Initializable {
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacion.setTitle("Cancelar venta");
         confirmacion.setHeaderText(null);
-        confirmacion.setContentText("¿Seguro que quieres vaciar el ticket?");
-        Optional<ButtonType> resultado = confirmacion.showAndWait();
-        if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
+        confirmacion.setContentText("¿Seguro que quieres vaciar el ticket?"); //pregunta en la ventanita
+        Optional<ButtonType> resultado = confirmacion.showAndWait(); // muestra y congela la pantalla
+        if (resultado.isPresent() && resultado.get() == ButtonType.OK) { //el usuario presiono un boton y fue el de ok ejecuta limpiar y refescartotales
             limpiarTicket();
             refrescarTotales();
         }
     }
 
-    private void limpiarTicket() {
-        ticket.clear();
-        cboCliente.getSelectionModel().clearSelection();
+    
+    // Método para sumar 1 pieza al renglón seleccionado
+    private void AgregarUnaPieza(DetalleVenta renglonSeleccionado) {
+        if (renglonSeleccionado == null) {
+            return; 
+        }
+
+        // 1. Buscamos el producto original en el catálogo para ver su precio y stock
+        Producto productoOriginal = catalogo.get(renglonSeleccionado.getIdProducto());
+        
+        // 2. Calculamos cuántos quedan disponibles
+        int piezasEnTicket = renglonSeleccionado.getCantidad();
+        int disponibles = productoOriginal.getCantidad() - piezasEnTicket;
+        
+        // 3. Revisamos si podemos sumarle
+        if (disponibles <= 0) {
+            alerta(Alert.AlertType.WARNING, "Sin existencia", "No hay más piezas en el inventario.");
+        } else {
+            int nuevaCantidad = piezasEnTicket + 1;
+            renglonSeleccionado.setCantidad(nuevaCantidad);
+            
+            BigDecimal nuevoSubtotal = productoOriginal.getPrecio().multiply(BigDecimal.valueOf(nuevaCantidad));
+            renglonSeleccionado.setSubtotal(nuevoSubtotal);
+            
+            refrescarTotales();
+        }
     }
 
-    private void alerta(Alert.AlertType tipo, String titulo, String mensaje) {
+    // Método para restar 1 pieza al renglón seleccionado
+    private void QuitarUnaPieza(DetalleVenta renglonSeleccionado) {
+        if (renglonSeleccionado == null) {
+            return;
+        }
+
+        Producto productoOriginal = catalogo.get(renglonSeleccionado.getIdProducto());
+        int cantidadActual = renglonSeleccionado.getCantidad();
+
+        // Si solo tiene 1 pieza y le restamos, mejor lo eliminamos de la lista
+        if (cantidadActual == 1) {
+            eliminarDelTicket(renglonSeleccionado);
+        } else {
+            int nuevaCantidad = cantidadActual - 1;
+            renglonSeleccionado.setCantidad(nuevaCantidad);
+            
+            BigDecimal nuevoSubtotal = productoOriginal.getPrecio().multiply(BigDecimal.valueOf(nuevaCantidad));
+            renglonSeleccionado.setSubtotal(nuevoSubtotal);
+            
+            refrescarTotales();
+        }
+    }
+
+    // Método para eliminar todo el renglón del ticket
+    private void eliminarDelTicket(DetalleVenta renglonSeleccionado) {
+        if (renglonSeleccionado == null) {
+            return;
+        }
+        
+        // Removemos el producto de la lista en memoria
+        ticket.remove(renglonSeleccionado);
+        refrescarTotales();
+    }
+    
+    // Método que crea el menú de clic derecho en la tabla
+    private void configurarMenuClicDerecho() {
+        
+        // Le decimos a la tabla cómo construir sus renglones
+        tblTicket.setRowFactory(tabla -> {
+            TableRow<DetalleVenta> renglon = new TableRow<>();
+
+            // 1. Creamos el menú y sus 3 opciones de texto
+            ContextMenu menu = new ContextMenu();
+            MenuItem opcionSumar = new MenuItem("Sumar 1 pieza");
+            MenuItem opcionRestar = new MenuItem("Restar 1 pieza");
+            MenuItem opcionEliminar = new MenuItem("Eliminar del ticket");
+
+            // 2. Conectamos las opciones con los métodos que creamos arriba
+            opcionSumar.setOnAction(evento -> {
+                AgregarUnaPieza(renglon.getItem());
+            });
+
+            opcionRestar.setOnAction(evento -> {
+                QuitarUnaPieza(renglon.getItem());
+            });
+
+            opcionEliminar.setOnAction(evento -> {
+                eliminarDelTicket(renglon.getItem());
+            });
+
+            // 3. Metemos las opciones adentro del menú
+            menu.getItems().add(opcionSumar);
+            menu.getItems().add(opcionRestar);
+            menu.getItems().add(opcionEliminar);
+
+            // 4. Lógica tradicional: Si el renglón está vacío, quitamos el menú. Si tiene datos, se lo pegamos.
+            renglon.emptyProperty().addListener((observable, estabaVacio, estaVacio) -> {
+                if (estaVacio == true) {
+                    renglon.setContextMenu(null);
+                } else {
+                    renglon.setContextMenu(menu);
+                }
+            });
+
+            return renglon;
+        });
+    }
+   
+
+    private void alerta(Alert.AlertType tipo, String titulo, String mensaje) { //pinta las alertas del programa
         Alert alert = new Alert(tipo);
         alert.setTitle(titulo);
         alert.setHeaderText(null);

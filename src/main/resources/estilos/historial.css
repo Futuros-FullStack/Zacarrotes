@@ -1,0 +1,76 @@
+/* =========================================================
+   Zacarrotes - Estilos exclusivos de la vista de Historial
+   Requiere general.css cargado antes (ver historial.fxml).
+
+   Reaprovecha las clases de general.css (table-card, btn,
+   badge-count, field-label, ticket-total...). Aqui solo va
+   lo que es propio de esta pantalla.
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   Panel derecho con el detalle del ticket
+   --------------------------------------------------------- */
+.detalle-panel {
+    -fx-background-color: #0e110e;
+    -fx-border-color: transparent transparent transparent -color-border;
+    -fx-border-width: 0 0 0 1;
+}
+
+/* Pastilla del folio junto al titulo "Detalle" */
+.badge-ticket {
+    -fx-background-color: #23294a;
+    -fx-background-radius: 6;
+    -fx-text-fill: #9fb0ff;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-padding: 3 8 3 8;
+}
+
+/* ---------------------------------------------------------
+   Etiquetas y totales del detalle
+   Mismos tamanos que el panel de ticket de la vista de Venta
+   para que las dos pantallas se lean igual.
+   --------------------------------------------------------- */
+.ticket-etiqueta {
+    -fx-text-fill: -color-muted;
+    -fx-font-size: 11px;
+}
+
+.ticket-valor {
+    -fx-text-fill: #cfd5cf;
+    -fx-font-size: 11px;
+}
+
+.ticket-total-etiqueta {
+    -fx-text-fill: -color-text;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.ticket-total {
+    -fx-text-fill: white;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+/* Folio de la tabla de ventas: numerito discreto monoespaciado */
+.celda-folio {
+    -fx-text-fill: #6d746d;
+    -fx-font-family: "Consolas", "Courier New", monospace;
+    -fx-font-size: 11px;
+}
+
+/* ---------------------------------------------------------
+   Estado vacio de la tabla de ventas
+   --------------------------------------------------------- */
+.icon-historial-vacio {
+    -fx-stroke: #3d463d;
+    -fx-scale-x: 2.2;
+    -fx-scale-y: 2.2;
+}
+
+/* Boton deshabilitado: que se note que necesita una seleccion */
+.btn:disabled {
+    -fx-opacity: 0.4;
+    -fx-cursor: default;
+}
