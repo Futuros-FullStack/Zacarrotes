@@ -10,7 +10,7 @@ import java.sql.SQLException;
  */
 public class ConexionBD {
 
-    private static final String URL = "jdbc:postgresql://localhost:5432/zacarrotes";
+    private static final String URL = "jdbc:postgresql://localhost:5432/puntodeventarosi";
     private static final String USER = "postgres";
     private static final String VARIABLE_PASSWORD = "password_zacarrotes";
 

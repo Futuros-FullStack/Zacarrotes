@@ -32,12 +32,21 @@ public class ClienteController {
     
     public ClienteDao dao = new ClienteDao();
     public ObservableList<Cliente> listaClientes = FXCollections.observableArrayList();
+    private Cliente clienteSeleccionado;
     
     public void initialize(){
         colIdCliente.setCellValueFactory(new PropertyValueFactory<>("idCliente"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         
         cargarTabla();
+        
+        tblClientes.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if(newSelection != null){
+                 clienteSeleccionado = newSelection;
+                 txtNombre.setText(clienteSeleccionado.getNombre());
+                 btnGuardar.setText("Actualizar");
+            }
+        });
     }
     
     private void cargarTabla(){
@@ -53,17 +62,30 @@ public class ClienteController {
     public void guardarCliente() {
         String nombre = txtNombre.getText();
         
-        if (nombre != null && !nombre.trim().isEmpty()) {
+        if(nombre.isEmpty()){
+            mostrarAlerta("Atencion", "El campo de nombre no puede estar vacio!!!");
+            return;
+        }
+        
+        if(!nombre.matches("^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\\\s]+$")){
+            mostrarAlerta("Atencion", "El nombre solo debe contener letras. No se permiten numeros ni caracteres especiales!!!.");
+            return;
+        }
+        
+        if(clienteSeleccionado == null){
             Cliente nuevo = new Cliente();
             nuevo.setNombre(nombre);
-            
             dao.insertar(nuevo);
+        }else{
+            clienteSeleccionado.setNombre(nombre);
+            dao.editar(clienteSeleccionado);
             
-            txtNombre.clear();
-            cargarTabla();
-        } else {
-            mostrarAlerta("Atención", "El campo de nombre no puede estar vacío.");
+            clienteSeleccionado = null;
+            btnGuardar.setText("Guardar");
         }
+        
+        txtNombre.clear();
+        cargarTabla();
     }
     
     public void eliminarCliente() {
@@ -71,6 +93,11 @@ public class ClienteController {
         
         if (seleccionado != null) {
             dao.eliminar(seleccionado.getIdCliente());
+            
+            clienteSeleccionado = null;
+            btnGuardar.setText("Guardar");
+            txtNombre.clear();
+            
             cargarTabla();
         } else {
             mostrarAlerta("Atención", "Primero selecciona un cliente de la tabla.");
